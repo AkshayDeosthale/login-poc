@@ -6,4 +6,8 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .input-style {
+    @apply focus:ring-1 focus:ring-inset  transition-all ease-in-out duration-200 px-3;
+  }
 }
