@@ -1,13 +1,31 @@
 "use server";
+import * as jwt from "jsonwebtoken";
 
 import { prisma, prismaDisconnect } from "@/script";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+function generateAccessToken(user: {
+  username: string;
+  password: string;
+}): string {
+  const payload = {
+    username: user.username,
+    password: user.password,
+  };
+
+  const secret = process.env.JWT_SECRET!;
+  const options = { expiresIn: "1h" };
+
+  return jwt.sign(payload, secret, options);
+}
+
 export const handleSignIn = async (formData: FormData) => {
   const username = formData.get("username")?.toString()!;
   const password = formData.get("password")?.toString()!;
+  const token: string = generateAccessToken({ username, password });
+
   const type = "Signin account";
   const user = await prisma.user.findUnique({
     where: {
@@ -16,7 +34,7 @@ export const handleSignIn = async (formData: FormData) => {
   });
 
   if (user) {
-    cookies().set("authid", `${username}-${password}`, { secure: true });
+    cookies().set("authid", token, { secure: true });
     revalidatePath("/");
     redirect(`/`);
   } else {
