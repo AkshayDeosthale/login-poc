@@ -21,9 +21,9 @@ function generateAccessToken(user: {
   return jwt.sign(payload, secret, options);
 }
 
-function verifyAccessToken(token: string) {
+export async function verifyAccessToken(token: string | undefined) {
   const secret = process.env.JWT_SECRET!;
-
+  if (!token) return;
   try {
     const decoded = jwt.verify(token, secret);
     return { success: true, data: decoded };
