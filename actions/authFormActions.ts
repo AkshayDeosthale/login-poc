@@ -21,6 +21,17 @@ function generateAccessToken(user: {
   return jwt.sign(payload, secret, options);
 }
 
+function verifyAccessToken(token: string) {
+  const secret = process.env.JWT_SECRET!;
+
+  try {
+    const decoded = jwt.verify(token, secret);
+    return { success: true, data: decoded };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 export const handleSignIn = async (formData: FormData) => {
   const username = formData.get("username")?.toString()!;
   const password = formData.get("password")?.toString()!;
