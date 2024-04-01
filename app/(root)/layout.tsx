@@ -5,7 +5,7 @@ const RootLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  return <main>{children}</main>;
+  return <main className="">{children}</main>;
 };
 
 export default RootLayout;
