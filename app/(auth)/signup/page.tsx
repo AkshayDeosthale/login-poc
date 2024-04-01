@@ -4,7 +4,7 @@ import React from "react";
 
 const SignUpPage = () => {
   return (
-    <main className="h-screen w-full flex bg-neutral-200 justify-center items-center dark:bg-neutral-700">
+    <main className="min-h-screen w-full flex bg-neutral-200 justify-center items-center dark:bg-neutral-700">
       <section className="gradient-form h-full  ">
         <div className="container h-full p-10">
           <div className="flex h-full flex-wrap items-center justify-center text-neutral-800 dark:text-neutral-200">
