@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.11.0",
+    "algosdk": "^2.7.0",
     "jsonwebtoken": "^9.0.2",
     "next": "14.1.4",
     "react": "^18",

@@ -14,5 +14,7 @@ model User {
   id    Int     @id @default(autoincrement())
   username String  @unique
   password  String?
+  public_address String
+  private_key String
 }
 

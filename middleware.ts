@@ -8,9 +8,8 @@ export async function middleware(request: NextRequest) {
   const cookieStore = cookies();
   const isAuth = cookieStore.get("authid");
   const isJWTVerified = await verifyAccessToken(isAuth?.value);
-  console.log(isAuth);
-
-  if (!isAuth || isJWTVerified?.success)
+  console.log(!isJWTVerified?.success)
+  if (!isAuth || !isJWTVerified?.success)
     NextResponse.redirect(new URL("/signin", request.url));
 
   NextResponse.next();
