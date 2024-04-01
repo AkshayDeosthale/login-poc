@@ -141,11 +141,15 @@ export const getAlgoAccountBalance = async () => {
       },
     });
     if (wallet) {
-      const indexer = new algosdk.Indexer('',process.env.INDEXER_URL!,process.env.INDEXER_PORT!);
+      const indexer = new algosdk.Indexer(
+        "",
+        process.env.INDEXER_URL!,
+        process.env.INDEXER_PORT!
+      );
       const res = await indexer.lookupAccountByID(wallet.public_address).do();
-      console.log(res.account.assets)
-      return {status:true,balance:res.account.amount/1000000}
-    } else { 
+      console.log(res.account.assets);
+      return { status: true, balance: res.account.amount / 1000000 };
+    } else {
       return { status: false, msg: "unable to find wallet" };
     }
   } else {
@@ -163,25 +167,34 @@ export const getCreatedAssets = async () => {
       },
     });
     if (wallet) {
-      const indexer = new algosdk.Indexer('',process.env.INDEXER_URL!,process.env.INDEXER_PORT!);
-      const assets = []
-      const res = await indexer.lookupAccountCreatedAssets(wallet.public_address).do();
-      for(var i=0;i<res.assets.length;i++){
-        assets.push(res.assets[i]); 
+      const indexer = new algosdk.Indexer(
+        "",
+        process.env.INDEXER_URL!,
+        process.env.INDEXER_PORT!
+      );
+      const assets = [];
+      const res = await indexer
+        .lookupAccountCreatedAssets(wallet.public_address)
+        .do();
+      for (var i = 0; i < res.assets.length; i++) {
+        assets.push(res.assets[i]);
       }
-      while(true){
-        if(res.nextToken){
-          var result = await indexer.lookupAccountCreatedAssets(wallet.public_address).nextToken(res.nextToken).do();
-          for(var i=0;i<result.assets.length;i++){
+      while (true) {
+        if (res.nextToken) {
+          var result = await indexer
+            .lookupAccountCreatedAssets(wallet.public_address)
+            .nextToken(res.nextToken)
+            .do();
+          for (var i = 0; i < result.assets.length; i++) {
             assets.push(res.assets[i]);
           }
-        }else{
+        } else {
           break;
         }
       }
-      console.log(assets)
+      console.log(assets);
       // return {status:true,balance:res.account.amount/1000000}
-    } else { 
+    } else {
       return { status: false, msg: "unable to find wallet" };
     }
   } else {
@@ -189,7 +202,11 @@ export const getCreatedAssets = async () => {
   }
 };
 
-export const sendAsset = async (reciever:string,asset_id:number,amt:number) => {
+export const sendAsset = async (
+  reciever: string,
+  asset_id: number,
+  amt: number
+) => {
   const cookieStore = cookies().get("authid");
   const isJWTVerified = (await verifyAccessToken(cookieStore?.value)) as any;
   if (isJWTVerified?.success === true) {
@@ -199,25 +216,34 @@ export const sendAsset = async (reciever:string,asset_id:number,amt:number) => {
       },
     });
     if (wallet) {
-      const indexer = new algosdk.Indexer('',process.env.INDEXER_URL!,process.env.INDEXER_PORT!);
-      const assets = []
-      const res = await indexer.lookupAccountCreatedAssets(wallet.public_address).do();
-      for(var i=0;i<res.assets.length;i++){
-        assets.push(res.assets[i]); 
+      const indexer = new algosdk.Indexer(
+        "",
+        process.env.INDEXER_URL!,
+        process.env.INDEXER_PORT!
+      );
+      const assets = [];
+      const res = await indexer
+        .lookupAccountCreatedAssets(wallet.public_address)
+        .do();
+      for (var i = 0; i < res.assets.length; i++) {
+        assets.push(res.assets[i]);
       }
-      while(true){
-        if(res.nextToken){
-          var result = await indexer.lookupAccountCreatedAssets(wallet.public_address).nextToken(res.nextToken).do();
-          for(var i=0;i<result.assets.length;i++){
+      while (true) {
+        if (res.nextToken) {
+          var result = await indexer
+            .lookupAccountCreatedAssets(wallet.public_address)
+            .nextToken(res.nextToken)
+            .do();
+          for (var i = 0; i < result.assets.length; i++) {
             assets.push(res.assets[i]);
           }
-        }else{
+        } else {
           break;
         }
       }
-      console.log(assets)
+      console.log(assets);
       // return {status:true,balance:res.account.amount/1000000}
-    } else { 
+    } else {
       return { status: false, msg: "unable to find wallet" };
     }
   } else {
