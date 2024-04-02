@@ -7,6 +7,20 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import * as algosdk from "algosdk";
 
+export type AssetType =
+  | {
+      status: boolean;
+      assets: {
+        id: any;
+        decimals: any;
+        name: any;
+        unit_name: any;
+        balance: number;
+      }[];
+      msg?: undefined;
+    }
+  | { status: boolean; msg: string; assets?: undefined };
+
 function generateAccessToken(user: {
   username: string;
   password: string;
@@ -24,10 +38,11 @@ function generateAccessToken(user: {
 
 export async function verifyAccessToken(token: string | undefined) {
   const secret = process.env.JWT_SECRET!;
-  console.log(token);
+
   if (!token) return;
   try {
     const decoded = jwt.verify(token, secret);
+
     return { success: true, data: decoded };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -48,7 +63,7 @@ export const handleSignIn = async (formData: FormData) => {
 
   if (user) {
     cookies().set("authid", token, { secure: true });
-    revalidatePath("/");
+    // revalidatePath("/");
     redirect(`/`);
   } else {
     console.error("User not found");
@@ -76,12 +91,16 @@ export const handleSignUp = async (formData: FormData) => {
   redirect(`/signin`);
 };
 
-export const createToken = async (
-  asset_name: string,
-  unit_name: string,
-  total_supply: number,
-  decimals: number
-) => {
+export const createToken = async (formData: FormData) => {
+  // console.log({ asset_name, unit_name, total_supply, decimals });
+  const obj = {
+    asset_name: formData.get("asset_name")!.toString(),
+    unit_name: formData.get("unit_name")!.toString(),
+    total_supply: Number(formData.get("total_supply")),
+    decimals: Number(formData.get("decimals")),
+  };
+  let { asset_name, decimals, total_supply, unit_name } = obj;
+
   const cookieStore = cookies().get("authid");
   const isJWTVerified = (await verifyAccessToken(cookieStore?.value)) as any;
   if (isJWTVerified?.success === true) {
@@ -144,6 +163,8 @@ export const getAccountBalances = async () => {
         username: isJWTVerified?.data?.username,
       },
     });
+    console.log(wallet);
+
     if (wallet) {
       const indexer = new algosdk.Indexer(
         "",
@@ -154,26 +175,31 @@ export const getAccountBalances = async () => {
       try {
         res = await indexer.lookupAccountByID(wallet.public_address).do();
         console.log(res.account.assets);
-        var assets=[];
-        for(var i=0;i<res.account.assets.length;i++){
-          var id = res.account.assets[i]['asset-id'];
+        var assets = [];
+        for (var i = 0; i < res.account.assets.length; i++) {
+          var id = res.account.assets[i]["asset-id"];
           var amount = res.account.assets[i].amount;
           var re = await indexer.lookupAssetByID(id).do();
           var decimals = re.asset.params.decimals;
           var name = re.asset.params.name;
           var unit = re.asset.params["unit-name"];
-          var balance = amount/(10**decimals);
-          assets.push({id,name,unit,balance,decimals});
+          var balance = amount / 10 ** decimals;
+          assets.push({ id, name, unit, balance, decimals });
         }
         return {
           status: true,
           balance: res.account.amount / 1000000,
           address: wallet.public_address,
-          assets:assets
+          assets: assets,
         };
       } catch (e: any) {
-        console.log(e.message)
-        return { status: true, balance: 0, address: wallet.public_address,assets:[] };
+        console.log(e.message);
+        return {
+          status: true,
+          balance: 0,
+          address: wallet.public_address,
+          assets: [],
+        };
       }
     } else {
       return { status: false, msg: "unable to find wallet" };
@@ -212,14 +238,7 @@ export const getCreatedAssets = async () => {
             .nextToken(res.nextToken)
             .do();
           for (var i = 0; i < result.assets.length; i++) {
-      while (true) {
-        if (res.nextToken) {
-          var result = await indexer
-            .lookupAccountCreatedAssets(wallet.public_address)
-            .nextToken(res.nextToken)
-            .do();
-          for (var i = 0; i < result.assets.length; i++) {
-            assets.push(res.assets[i]);
+            assets.push(result.assets[i]);
           }
         } else {
           break;
@@ -239,10 +258,10 @@ export const getCreatedAssets = async () => {
             .lookupAccountAssets(wallet.public_address)
             .nextToken(res.nextToken)
             .do();
-          for (var i = 0; i < res.assets.length; i++) {
+          for (var i = 0; i < result.assets.length; i++) {
             balances.push({
-              amount: res.assets[i].amount,
-              "asset-id": assets[i]["asset-id"],
+              amount: result.assets[i].amount,
+              "asset-id": result.assets[i]["asset-id"],
             });
           }
         } else {
@@ -308,11 +327,14 @@ const checkAddressisOptedToAsset = async (
   }
 };
 
-export const sendAsset = async (
-  reciever: string,
-  asset_id: number,
-  amt: number
-) => {
+export const sendAsset = async (formData: FormData) => {
+  const obj = {
+    reciever: formData.get("reciever")?.toString()!,
+    asset_id: Number(formData.get("asset_id")),
+    amt: Number(formData.get("amt")),
+  };
+
+  let { amt, asset_id, reciever } = obj;
   const cookieStore = cookies().get("authid");
   const isJWTVerified = (await verifyAccessToken(cookieStore?.value)) as any;
   if (isJWTVerified?.success === true) {

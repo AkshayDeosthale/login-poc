@@ -1,3 +1,4 @@
+import Header from "@/components/Header";
 import React from "react";
 
 const RootLayout = ({
@@ -5,7 +6,12 @@ const RootLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  return <main className="">{children}</main>;
+  return (
+    <main className="">
+      <Header />
+      {children}
+    </main>
+  );
 };
 
 export default RootLayout;

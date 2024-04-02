@@ -1,26 +1,27 @@
 "use client";
-import { createToken } from "@/actions/authFormActions";
+import {
+  AssetType,
+  getCreatedAssets,
+  sendAsset,
+} from "@/actions/authFormActions";
 import { getUserDetails } from "@/actions/globalActions";
 import { UserData } from "@/components/Header";
+import React from "react";
 
-const RootPage = async () => {
+const AssetTransferPage = async () => {
   const data: UserData = await getUserDetails();
+  const assetList: AssetType = await getCreatedAssets();
 
   return (
     <section className=" max-w-5xl mx-auto ">
-      <form action={createToken} className="py-16">
+      <form action={sendAsset} className="py-16">
         <div className="space-y-12">
           <div className="border-b border-gray-900/10 pb-12">
             <h2 className="text-base font-semibold leading-7 text-gray-900">
-              Create a fungible token
+              Transfer your tokens
             </h2>
             <p className="mt-1 text-sm leading-6 text-gray-600">
-              Fungible tokens are digital assets that are identical and
-              interchangeable, much like identical coins or banknotes. Each
-              token holds the same value and can be exchanged on a one-to-one
-              basis without distinction between individual units. They're
-              commonly used in blockchain applications like cryptocurrencies,
-              where uniformity is key for seamless transactions.
+              You can transfer the tokens you own
             </p>
           </div>
 
@@ -54,66 +55,52 @@ const RootPage = async () => {
                   </div>
                 </div>
               </div>
-              <div className="sm:col-span-3">
+              <div className="col-span-full ">
                 <label className="block text-sm font-medium leading-6 text-gray-900">
-                  Asset Name
+                  Receiver's address
                 </label>
                 <div className="mt-2">
-                  <input
-                    required
-                    type="text"
-                    name="asset_name"
-                    id="asset_name"
-                    maxLength={32}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
-                  />
+                  <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset  ">
+                    <input
+                      type="text"
+                      name="reciever"
+                      id="reciever"
+                      className="block flex-1 px-3  border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="sm:col-span-3">
                 <label className="block text-sm font-medium leading-6 text-gray-900">
-                  Unit name
+                  Asset
                 </label>
                 <div className="mt-2">
-                  <input
-                    required
-                    maxLength={8}
-                    type="text"
+                  <select
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
                     name="unit_name"
                     id="unit_name"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
-                  />
+                  >
+                    {assetList?.assets?.map((asset, key) => (
+                      <option key={key} value={asset.id}>
+                        {asset.name} / {asset.unit_name} / {asset.balance}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
               <div className="sm:col-span-3">
                 <label className="block text-sm font-medium leading-6 text-gray-900">
-                  Total supply
+                  Amount
                 </label>
                 <div className="mt-2">
                   <input
                     required
                     min={0}
                     type="number"
-                    name="total_supply"
-                    id="total_supply"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label className="block text-sm font-medium leading-6 text-gray-900">
-                  Decimals
-                </label>
-                <div className="mt-2">
-                  <input
-                    required
-                    min={0}
-                    max={19}
-                    type="number"
-                    name="decimals"
-                    id="decimals"
+                    name="amt"
+                    id="amt"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -133,7 +120,7 @@ const RootPage = async () => {
             type="submit"
             className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm flex items-center gap-3 "
           >
-            Create Token
+            Send Asset
           </button>
         </div>
       </form>
@@ -141,4 +128,4 @@ const RootPage = async () => {
   );
 };
 
-export default RootPage;
+export default AssetTransferPage;
