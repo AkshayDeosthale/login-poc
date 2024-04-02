@@ -212,13 +212,6 @@ export const getCreatedAssets = async () => {
             .nextToken(res.nextToken)
             .do();
           for (var i = 0; i < result.assets.length; i++) {
-      while (true) {
-        if (res.nextToken) {
-          var result = await indexer
-            .lookupAccountCreatedAssets(wallet.public_address)
-            .nextToken(res.nextToken)
-            .do();
-          for (var i = 0; i < result.assets.length; i++) {
             assets.push(res.assets[i]);
           }
         } else {
@@ -275,6 +268,7 @@ export const getCreatedAssets = async () => {
     return { status: false, msg: "Cannot Access this method without Login" };
   }
 };
+
 
 const checkAddressOrigin = async (address: string) => {
   const wallet = await prisma.user.findFirst({

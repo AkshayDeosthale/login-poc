@@ -1,13 +1,24 @@
 "use client";
 import { postNFT } from "@/actions/nftFormActions";
 import Image from "next/image";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { IoMdPhotos } from "react-icons/io";
 import { IoCloseCircle } from "react-icons/io5";
 import { RiNftLine } from "react-icons/ri";
+import { sendAsset,getAccountBalances,getCreatedAssets,createToken } from "@/actions/authFormActions";
 
 const RootPage = () => {
   const [imagePreview, setImagePreview] = useState<any>(null);
+
+  useEffect(()=>{
+    async function hh(){
+      console.log(await getAccountBalances());
+      // console.log(await getCreatedAssets());
+      // console.log(await sendAsset("2VDYL4IPVV5BHH7CZWOHKI2CWP3TEL4F7P7NURURYJIPSKWGATJKBZHGFA",629495479,50))
+      // console.log(await createToken("Akshay","ak",1000,4))
+    }
+    hh();
+  },[])
 
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
