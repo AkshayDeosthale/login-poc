@@ -212,6 +212,13 @@ export const getCreatedAssets = async () => {
             .nextToken(res.nextToken)
             .do();
           for (var i = 0; i < result.assets.length; i++) {
+      while (true) {
+        if (res.nextToken) {
+          var result = await indexer
+            .lookupAccountCreatedAssets(wallet.public_address)
+            .nextToken(res.nextToken)
+            .do();
+          for (var i = 0; i < result.assets.length; i++) {
             assets.push(res.assets[i]);
           }
         } else {
