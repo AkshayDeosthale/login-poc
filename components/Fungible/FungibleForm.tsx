@@ -67,7 +67,7 @@ const FungibleForm = ({ data }: Props) => {
     <form
       onSubmit={handleSubmit(onSubmit)}
       className={` ${
-        data.canTransact && "hidden"
+        !data.canTransact && "hidden"
       }  w-full mt-4 gap-3 grid grid-cols-2`}
     >
       <div className="">
