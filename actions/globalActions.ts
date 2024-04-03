@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { getAccountBalances, verifyAccessToken } from "./authFormActions";
+import { UserData } from "@/components/Header";
 
 export async function getUserDetails() {
   try {
@@ -10,6 +11,10 @@ export async function getUserDetails() {
     const cookieStore = cookies();
     const isAuth = cookieStore.get("authid");
     const isJWTVerified: any = await verifyAccessToken(isAuth?.value);
+    const obj: UserData = {
+      ...isJWTVerified?.data,
+      ...data,
+    };
 
     return {
       ...isJWTVerified?.data,

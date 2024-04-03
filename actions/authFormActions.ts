@@ -51,7 +51,10 @@ export async function verifyAccessToken(token: string | undefined) {
 }
 
 export const handleSignIn = async (username: string, password: string) => {
-  const token: string = generateAccessToken({ username, password });
+  const token: string = generateAccessToken({
+    username,
+    password,
+  });
 
   const type = "Signin account";
   const user = await prisma.user.findUnique({
@@ -59,7 +62,7 @@ export const handleSignIn = async (username: string, password: string) => {
       username: username,
     },
   });
-
+  await prismaDisconnect();
   if (user) {
     cookies().set("authid", token, { secure: true });
 
@@ -75,13 +78,15 @@ export const handleSignIn = async (username: string, password: string) => {
       message: "User not found",
     };
   }
-  await prismaDisconnect();
 };
 
-export const handleSignUp = async (formData: FormData) => {
+export const handleSignUp = async (
+  username: string,
+  password: string,
+  canTransact: boolean
+) => {
   cookies().delete("authid");
-  const username = formData.get("username")?.toString()!;
-  const password = formData.get("password")?.toString()!;
+
   const account = algosdk.generateAccount();
   const user = await prisma.user.create({
     data: {
@@ -89,13 +94,22 @@ export const handleSignUp = async (formData: FormData) => {
       password: password,
       public_address: account.addr,
       private_key: algosdk.secretKeyToMnemonic(account.sk),
+      canTransact: canTransact,
     },
   });
-  console.log(user);
   await prismaDisconnect();
-
-  revalidatePath("/signin");
-  redirect(`/signin`);
+  if (user) {
+    return {
+      status: true,
+      message: "User Ceated",
+      data: user,
+    };
+  } else {
+    return {
+      status: false,
+      message: "User not created",
+    };
+  }
 };
 
 export async function createToken(
@@ -168,7 +182,6 @@ export const getAccountBalances = async () => {
         username: isJWTVerified?.data?.username,
       },
     });
-    console.log(wallet);
 
     if (wallet) {
       const indexer = new algosdk.Indexer(
@@ -199,6 +212,7 @@ export const getAccountBalances = async () => {
           balance: res.account.amount / 1000000,
           address: wallet.public_address,
           assets: assets,
+          canTransact: wallet.canTransact,
         };
       } catch (e: any) {
         console.log(e.message);
@@ -207,6 +221,7 @@ export const getAccountBalances = async () => {
           balance: 0,
           address: wallet.public_address,
           assets: [],
+          canTransact: wallet.canTransact,
         };
       }
     } else {

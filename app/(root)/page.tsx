@@ -5,12 +5,13 @@ import FungibleForm from "@/components/Fungible/FungibleForm";
 import { UserData } from "@/components/Header";
 
 async function getdata() {
-  const data: UserData = await getUserDetails();
+  const data: UserData = await getUserDetails()!;
   return data;
 }
 
 const RootPage = async () => {
   const data = await getdata();
+
   return (
     <section className=" max-w-5xl mx-auto ">
       <div className="space-y-12 py-16">
@@ -34,7 +35,7 @@ const RootPage = async () => {
               <AccountDetails data={data} />
             </div>
           </div>
-          <FungibleForm />
+          <FungibleForm data={data} />
         </div>
       </div>
     </section>

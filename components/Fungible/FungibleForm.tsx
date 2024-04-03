@@ -8,6 +8,9 @@ import { ToastAction } from "../ui/toast";
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Spinner } from "../Spinner";
+import { useAppSelector } from "@/lib/hooks";
+import Cookies from "js-cookie";
+import { UserData } from "../Header";
 
 type Inputs = {
   asset_name: string;
@@ -15,10 +18,11 @@ type Inputs = {
   total_supply: number;
   decimals: number;
 };
-
-const FungibleForm = () => {
+type Props = { data: UserData };
+const FungibleForm = ({ data }: Props) => {
   const router = useRouter();
   const { toast } = useToast();
+
   const {
     register,
     handleSubmit,
@@ -62,7 +66,9 @@ const FungibleForm = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className=" w-full mt-4 gap-3 grid grid-cols-2"
+      className={` ${
+        data.canTransact && "hidden"
+      }  w-full mt-4 gap-3 grid grid-cols-2`}
     >
       <div className="">
         <label className="block text-sm font-medium leading-6 text-gray-900">

@@ -24,6 +24,7 @@ export interface UserData {
   balance: number;
   address: string;
   assets: any[];
+  canTransact: boolean;
 }
 
 async function getdata() {

@@ -16,5 +16,6 @@ model User {
   password  String?
   public_address String
   private_key String
+  canTransact        Boolean  @default(false)
 }
 

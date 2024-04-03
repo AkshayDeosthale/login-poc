@@ -11,6 +11,7 @@ export type UserState = {
   balance: number | null;
   address: string | null;
   assets: any[] | null;
+  canTransact: boolean;
 };
 // Define the initial state using that type
 const initialState: UserState = {
@@ -22,6 +23,7 @@ const initialState: UserState = {
   balance: null,
   address: null,
   assets: null,
+  canTransact: false,
 };
 
 export const UserSlice = createSlice({
