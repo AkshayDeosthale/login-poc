@@ -2,33 +2,38 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 // Define a type for the slice state
-interface UserState {
-  value: number;
-}
-
+export type UserState = {
+  username: string | null;
+  password: string | null;
+  iat: number | null;
+  exp: number | null;
+  status: boolean | null;
+  balance: number | null;
+  address: string | null;
+  assets: any[] | null;
+};
 // Define the initial state using that type
 const initialState: UserState = {
-  value: 0,
+  username: null,
+  password: null,
+  iat: null,
+  exp: null,
+  status: null,
+  balance: null,
+  address: null,
+  assets: null,
 };
 
 export const UserSlice = createSlice({
   name: "user",
-  // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
-    increment: (state) => {
-      state.value += 1;
-    },
-    decrement: (state) => {
-      state.value -= 1;
-    },
-    // Use the PayloadAction type to declare the contents of `action.payload`
-    incrementByAmount: (state, action: PayloadAction<number>) => {
-      state.value += action.payload;
+    setUserDataRedux: (state, action: PayloadAction<UserState>) => {
+      state = { ...action.payload };
     },
   },
 });
 
-export const { increment, decrement, incrementByAmount } = UserSlice.actions;
+export const { setUserDataRedux } = UserSlice.actions;
 
 export default UserSlice.reducer;
