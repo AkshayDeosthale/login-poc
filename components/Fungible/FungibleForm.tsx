@@ -1,6 +1,6 @@
 "use client";
 import { createToken } from "@/actions/authFormActions";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useToast } from "@/components/ui/use-toast";
 import { useFormState, useFormStatus } from "react-dom";
@@ -11,7 +11,7 @@ type Props = {};
 
 const FungibleForm = (props: Props) => {
   const [state, formAction] = useFormState<any, FormData>(createToken, null);
-  const { pending } = useFormStatus();
+
   const router = useRouter();
 
   const { toast } = useToast();
@@ -118,7 +118,7 @@ const FungibleForm = (props: Props) => {
           type="submit"
           className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm flex items-center gap-3 "
         >
-          {pending ? "Loading" : "Create Token"}
+          Create Token
         </button>
       </div>
     </form>
