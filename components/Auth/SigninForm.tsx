@@ -8,17 +8,26 @@ import { useToast } from "../ui/use-toast";
 import { ToastAction } from "../ui/toast";
 import { useAppDispatch } from "@/lib/hooks";
 import { setUserDataRedux } from "@/lib/slices/UserSlice";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { Spinner } from "../Spinner";
 
-type Props = {};
+type Inputs = {
+  username: string;
+  password: string;
+};
 
-const SigninForm = (props: Props) => {
+const SigninForm = () => {
   const dispatch = useAppDispatch();
-  const [state, formAction] = useFormState<any, FormData>(handleSignIn, null);
-
   const router = useRouter();
-
   const { toast } = useToast();
-  useEffect(() => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<Inputs>();
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const state = await handleSignIn(data.username, data.username);
     if (state) {
       dispatch(setUserDataRedux(state.data));
       if (state.status) {
@@ -35,9 +44,10 @@ const SigninForm = (props: Props) => {
         });
       }
     }
-  }, [state]);
+  };
+
   return (
-    <form action={formAction}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <p className="mb-4">Please login to your account</p>
 
       <div className="relative mb-4" data-twe-input-wrapper-init="">
@@ -46,8 +56,7 @@ const SigninForm = (props: Props) => {
         </label>
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          id="username"
-          name="username"
+          {...register("username")}
           type="text"
           placeholder="Username"
         />
@@ -59,8 +68,7 @@ const SigninForm = (props: Props) => {
         </label>
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          id="password"
-          name="password"
+          {...register("password")}
           type="password"
           placeholder="Password"
         />
@@ -77,7 +85,11 @@ const SigninForm = (props: Props) => {
               "linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)",
           }}
         >
-          Log in
+          {isSubmitting ? (
+            <Spinner className="text-white" size="medium" />
+          ) : (
+            "Log in"
+          )}
         </button>
       </div>
 

@@ -2,10 +2,10 @@
 import * as jwt from "jsonwebtoken";
 
 import { prisma, prismaDisconnect } from "@/script";
+import * as algosdk from "algosdk";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import * as algosdk from "algosdk";
 import { getUserDetails } from "./globalActions";
 
 export type AssetType =
@@ -50,9 +50,7 @@ export async function verifyAccessToken(token: string | undefined) {
   }
 }
 
-export const handleSignIn = async (prev: any, formData: FormData) => {
-  const username = formData.get("username")?.toString()!;
-  const password = formData.get("password")?.toString()!;
+export const handleSignIn = async (username: string, password: string) => {
   const token: string = generateAccessToken({ username, password });
 
   const type = "Signin account";

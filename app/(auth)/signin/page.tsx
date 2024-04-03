@@ -18,13 +18,10 @@ const SignInPage = () => {
                       {/*Logo*/}
                       <div className="text-center">
                         <img
-                          className="mx-auto w-48"
-                          src="https://tecdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/lotus.webp"
+                          className="mx-auto w-48 mb-6"
+                          src="/thoughtsparkcom_logo.jpeg"
                           alt="logo"
                         />
-                        <h4 className="mb-12 mt-1 pb-1 text-xl font-semibold">
-                          We are The Lotus Team
-                        </h4>
                       </div>
 
                       <SigninForm />
