@@ -63,8 +63,8 @@ const TransferTokenForm = ({ assetList }: Props) => {
         <div className="mt-2">
           <select
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
-            name="unit_name"
-            id="unit_name"
+            name="asset_id"
+            id="asset_id"
           >
             {assetList?.assets?.map((asset, key) => (
               <option key={key} value={asset.id}>
