@@ -4,8 +4,6 @@ import React from "react";
 type Props = { assetList: AssetType };
 
 const MyAssetList = async ({ assetList }: Props) => {
-  console.log("assets-------------------------->", assetList);
-
   return (
     <>
       <div className="col-span-full ">All Assets</div>

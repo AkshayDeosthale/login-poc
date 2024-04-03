@@ -16,6 +16,12 @@ const FungibleForm = (props: Props) => {
 
   const { toast } = useToast();
   useEffect(() => {
+    toast({
+      open: true,
+      variant: "default",
+      title:
+        " loreewfdesjkbfskejbfkjsbejfbksbekfbjksebjkfbsejbfkjsbekjfsekjc skj cksebkjs cj sjkcnsekjbckjcs kjc kjsebfkjs cjkenbfkjsebf ",
+    });
     if (state) {
       if (state.status) {
         toast({
