@@ -97,3 +97,8 @@
 .shad-cn-toast {
   width: 400px; /* Adjust the width value as needed */
 }
+
+div input {
+  padding-left: 10px;
+  padding-right: 10px;
+}

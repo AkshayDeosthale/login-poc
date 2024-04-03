@@ -1,5 +1,6 @@
 import { handleSignIn } from "@/actions/authFormActions";
 import SigninForm from "@/components/Auth/SigninForm";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -17,8 +18,10 @@ const SignInPage = () => {
                     <div className="md:mx-6 md:p-12">
                       {/*Logo*/}
                       <div className="text-center">
-                        <img
-                          className="mx-auto w-48 mb-6"
+                        <Image
+                          height={200}
+                          width={200}
+                          className="mx-auto mb-10 "
                           src="/thoughtsparkcom_logo.jpeg"
                           alt="logo"
                         />

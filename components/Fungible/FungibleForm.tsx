@@ -6,16 +6,33 @@ import { useToast } from "@/components/ui/use-toast";
 import { useFormState, useFormStatus } from "react-dom";
 import { ToastAction } from "../ui/toast";
 import { useRouter } from "next/navigation";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { Spinner } from "../Spinner";
 
-type Props = {};
+type Inputs = {
+  asset_name: string;
+  unit_name: string;
+  total_supply: number;
+  decimals: number;
+};
 
-const FungibleForm = (props: Props) => {
-  const [state, formAction] = useFormState<any, FormData>(createToken, null);
-
+const FungibleForm = () => {
   const router = useRouter();
-
   const { toast } = useToast();
-  useEffect(() => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<Inputs>();
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const state = await createToken(
+      data.asset_name,
+      data.unit_name,
+      Number(data.total_supply),
+      Number(data.decimals)
+    );
     if (state) {
       if (state.status) {
         toast({
@@ -30,6 +47,7 @@ const FungibleForm = (props: Props) => {
             </ToastAction>
           ),
         });
+        reset();
         router.refresh();
       } else {
         toast({
@@ -39,20 +57,21 @@ const FungibleForm = (props: Props) => {
         });
       }
     }
-  }, [state]);
+  };
 
   return (
-    <form action={formAction} className=" w-full mt-4 gap-3 grid grid-cols-2">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className=" w-full mt-4 gap-3 grid grid-cols-2"
+    >
       <div className="">
         <label className="block text-sm font-medium leading-6 text-gray-900">
           Asset Name
         </label>
         <div className="mt-2">
           <input
-            required
             type="text"
-            name="asset_name"
-            id="asset_name"
+            {...register("asset_name")}
             maxLength={32}
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
           />
@@ -65,11 +84,9 @@ const FungibleForm = (props: Props) => {
         </label>
         <div className="mt-2">
           <input
-            required
             maxLength={8}
             type="text"
-            name="unit_name"
-            id="unit_name"
+            {...register("unit_name")}
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
           />
         </div>
@@ -81,11 +98,9 @@ const FungibleForm = (props: Props) => {
         </label>
         <div className="mt-2">
           <input
-            required
             min={0}
             type="number"
-            name="total_supply"
-            id="total_supply"
+            {...register("total_supply")}
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
           />
         </div>
@@ -97,12 +112,10 @@ const FungibleForm = (props: Props) => {
         </label>
         <div className="mt-2">
           <input
-            required
             min={0}
             max={19}
             type="number"
-            name="decimals"
-            id="decimals"
+            {...register("decimals")}
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
           />
         </div>
@@ -110,9 +123,13 @@ const FungibleForm = (props: Props) => {
       <div className="mt-6 flex items-center justify-end gap-x-6">
         <button
           type="submit"
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm flex items-center gap-3 "
+          className="rounded-md w-[200px] flex justify-center items-center bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm  gap-3 "
         >
-          Create Token
+          {isSubmitting ? (
+            <Spinner className="text-white" size="medium" />
+          ) : (
+            "Create Token"
+          )}
         </button>
       </div>
     </form>

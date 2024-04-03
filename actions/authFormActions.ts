@@ -98,16 +98,12 @@ export const handleSignUp = async (formData: FormData) => {
   redirect(`/signin`);
 };
 
-export async function createToken(previousState: any, formData: FormData) {
-  // console.log({ asset_name, unit_name, total_supply, decimals });
-  const obj = {
-    asset_name: formData.get("asset_name")!.toString(),
-    unit_name: formData.get("unit_name")!.toString(),
-    total_supply: Number(formData.get("total_supply")),
-    decimals: Number(formData.get("decimals")),
-  };
-  let { asset_name, decimals, total_supply, unit_name } = obj;
-
+export async function createToken(
+  asset_name: string,
+  unit_name: string,
+  total_supply: number,
+  decimals: number
+) {
   const cookieStore = cookies().get("authid");
   const isJWTVerified = (await verifyAccessToken(cookieStore?.value)) as any;
   if (isJWTVerified?.success === true) {
@@ -339,15 +335,11 @@ const checkAddressisOptedToAsset = async (
   }
 };
 
-export const sendAsset = async (prev: any, formData: FormData) => {
-  const obj = {
-    reciever: formData.get("reciever")?.toString()!,
-    asset_id: Number(formData.get("asset_id")),
-    amt: Number(formData.get("amt")),
-  };
-
-  let { amt, asset_id, reciever } = obj;
-
+export const sendAsset = async (
+  reciever: string,
+  asset_id: number,
+  amt: number
+) => {
   const cookieStore = cookies().get("authid");
   const isJWTVerified = (await verifyAccessToken(cookieStore?.value)) as any;
   if (isJWTVerified?.success === true) {
