@@ -4,35 +4,23 @@ import React from "react";
 type Props = { assetList: AssetType };
 
 const MyAssetList = async ({ assetList }: Props) => {
+  console.log("assets-------------------------->", assetList);
+
   return (
     <>
-      <div className="col-span-full ">Created</div>
-      <div className="col-span-full grid grid-cols-3 gap-3 ">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num, key) => (
-          <div
-            key={key}
-            className="cursor-default  border border-slate-300 p-6 rounded-lg hover:border-slate-600 active:border-slate-600 focus:border-slate-600 transition-all duration-200 ease-in-out "
-          >
-            <div className="">
-              <p className="font-bold">Asset123</p>
-              <p className="text-sm">ETH</p>
-              <p className="text-sm">200.443 ETH</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
       <div className="col-span-full ">All Assets</div>
       <div className="col-span-full grid grid-cols-3 gap-3 ">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num, key) => (
+        {assetList?.assets?.map((asset, key) => (
           <div
             key={key}
             className="cursor-default  border border-slate-300 p-6 rounded-lg hover:border-slate-600 active:border-slate-600 focus:border-slate-600 transition-all duration-200 ease-in-out "
           >
             <div className="">
-              <p className="font-bold">Asset123</p>
-              <p className="text-sm">ETH</p>
-              <p className="text-sm">200.443 ETH</p>
+              <p className="font-bold">{asset.name}</p>
+              <p className="text-sm">{asset.unit_name}</p>
+              <p className="text-sm">
+                {asset.balance} {asset.unit_name}
+              </p>
             </div>
           </div>
         ))}

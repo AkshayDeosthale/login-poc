@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import * as algosdk from "algosdk";
+import { getUserDetails } from "./globalActions";
 
 export type AssetType =
   | {
@@ -49,7 +50,7 @@ export async function verifyAccessToken(token: string | undefined) {
   }
 }
 
-export const handleSignIn = async (formData: FormData) => {
+export const handleSignIn = async (prev: any, formData: FormData) => {
   const username = formData.get("username")?.toString()!;
   const password = formData.get("password")?.toString()!;
   const token: string = generateAccessToken({ username, password });
@@ -63,10 +64,18 @@ export const handleSignIn = async (formData: FormData) => {
 
   if (user) {
     cookies().set("authid", token, { secure: true });
-    // revalidatePath("/");
-    redirect(`/`);
+
+    const userData = await getUserDetails();
+    return {
+      status: true,
+      message: "User Logged In",
+      data: userData,
+    };
   } else {
-    console.error("User not found");
+    return {
+      status: false,
+      message: "User not found",
+    };
   }
   await prismaDisconnect();
 };

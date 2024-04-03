@@ -1,6 +1,4 @@
-import React from "react";
 import { UserData } from "./Header";
-import { getUserDetails } from "@/actions/globalActions";
 
 type Props = { data: UserData };
 
