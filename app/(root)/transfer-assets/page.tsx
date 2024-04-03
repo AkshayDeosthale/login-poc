@@ -1,55 +1,50 @@
-import { sendAsset } from "@/actions/authFormActions";
+import {
+  AssetType,
+  getCreatedAssets,
+  sendAsset,
+} from "@/actions/authFormActions";
 import { getUserDetails } from "@/actions/globalActions";
 import AccountDetails from "@/components/AccountDetails";
 import { UserData } from "@/components/Header";
-import TransferTokenForm from "@/components/TransferTokenForm";
+import TransferTokenForm from "@/components/Transfer/TransferTokenForm";
 
 async function getdata() {
   const data: UserData = await getUserDetails();
   return data;
 }
 
+async function getAssetdata() {
+  const assetList: AssetType = await getCreatedAssets();
+  return assetList;
+}
+
 const AssetTransferPage = async () => {
   const data = await getdata();
+  const assetList: AssetType = await getAssetdata();
   return (
     <section className=" max-w-5xl mx-auto ">
-      <form action={sendAsset} className="py-16">
-        <div className="space-y-12">
-          <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-7 text-gray-900">
-              Transfer your tokens
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">
-              You can transfer the tokens you own
-            </p>
-          </div>
+      <div className="space-y-12 py-16">
+        <div className="border-b border-gray-900/10 pb-12">
+          <h2 className="text-base font-semibold leading-7 text-gray-900">
+            Transfer your tokens
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-gray-600">
+            You can transfer the tokens you own
+          </p>
+        </div>
 
-          <div className="border-b border-gray-900/10 pb-12">
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="col-span-full ">
-                <AccountDetails data={data} />
-              </div>
-
-              <TransferTokenForm />
+        <div className="border-b border-gray-900/10 pb-12">
+          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div className="col-span-full ">
+              <AccountDetails data={data} />
             </div>
+
+            {/* <TransferTokenForm assetList={assetList} /> */}
           </div>
         </div>
+      </div>
 
-        <div className="mt-6 flex items-center justify-end gap-x-6">
-          {/* <button
-            type="button"
-            className="text-sm font-semibold leading-6 text-gray-900"
-          >
-            Cancel
-          </button> */}
-          <button
-            type="submit"
-            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm flex items-center gap-3 "
-          >
-            Send Asset
-          </button>
-        </div>
-      </form>
+      <TransferTokenForm assetList={assetList} />
     </section>
   );
 };

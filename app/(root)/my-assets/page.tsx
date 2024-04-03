@@ -16,7 +16,7 @@ async function getAssetdata() {
 
 const MyAssets = async () => {
   const data = await getdata();
-  const assetList: AssetType = await getdata();
+  const assetList: AssetType = await getAssetdata();
   return (
     <section className=" max-w-5xl mx-auto ">
       <div className="space-y-12 py-16">

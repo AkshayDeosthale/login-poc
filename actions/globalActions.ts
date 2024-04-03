@@ -6,6 +6,7 @@ import { getAccountBalances, verifyAccessToken } from "./authFormActions";
 export async function getUserDetails() {
   try {
     const data = await getAccountBalances();
+
     const cookieStore = cookies();
     const isAuth = cookieStore.get("authid");
     const isJWTVerified: any = await verifyAccessToken(isAuth?.value);

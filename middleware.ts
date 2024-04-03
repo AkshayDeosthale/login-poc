@@ -11,6 +11,8 @@ export async function middleware(request: NextRequest) {
   const isAuth = cookieStore.get("authid");
   const isJWTVerified = await verifyAccessToken(isAuth?.value);
 
+  console.log(getAccountBalances());
+
   // if (
   //   !isJWTVerified?.success &&
   //   request.nextUrl.pathname !== "/signin" &&

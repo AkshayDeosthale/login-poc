@@ -1,17 +1,46 @@
-import { AssetType, getCreatedAssets } from "@/actions/authFormActions";
-import React from "react";
+"use client";
+import { AssetType, sendAsset } from "@/actions/authFormActions";
+import { useEffect } from "react";
+import { useFormState } from "react-dom";
+import { ToastAction } from "../ui/toast";
+import { useToast } from "../ui/use-toast";
+import { useRouter } from "next/navigation";
 
-type Props = {};
+type Props = { assetList: AssetType };
 
-async function getdata() {
-  const assetList: AssetType = await getCreatedAssets();
-  return assetList;
-}
+const TransferTokenForm = ({ assetList }: Props) => {
+  const [state, formAction] = useFormState<any, FormData>(sendAsset, null);
+  const router = useRouter();
 
-const TransferTokenForm = async (props: Props) => {
-  const assetList: AssetType = await getdata();
+  const { toast } = useToast();
+  useEffect(() => {
+    if (state) {
+      if (state.status) {
+        toast({
+          variant: "default",
+          title: state.msg,
+          description: state.tx_url,
+          action: (
+            <ToastAction altText="Visitxn">
+              <a target="_blank" href={state.tx_url!}>
+                Check
+              </a>
+            </ToastAction>
+          ),
+        });
+        router.refresh();
+      } else {
+        toast({
+          variant: "destructive",
+          title: state.msg,
+          description: state.tx_url,
+        });
+      }
+    }
+  }, [state]);
+
   return (
-    <>
+    <form action={formAction} className=" w-full mt-4 gap-3 grid grid-cols-2">
       <div className="col-span-full ">
         <label className="block text-sm font-medium leading-6 text-gray-900">
           Receiver's address
@@ -27,7 +56,7 @@ const TransferTokenForm = async (props: Props) => {
           </div>
         </div>
       </div>
-      <div className="sm:col-span-3">
+      <div className="">
         <label className="block text-sm font-medium leading-6 text-gray-900">
           Asset
         </label>
@@ -45,7 +74,7 @@ const TransferTokenForm = async (props: Props) => {
           </select>
         </div>
       </div>
-      <div className="sm:col-span-3">
+      <div className="">
         <label className="block text-sm font-medium leading-6 text-gray-900">
           Amount
         </label>
@@ -60,7 +89,15 @@ const TransferTokenForm = async (props: Props) => {
           />
         </div>
       </div>
-    </>
+      <div className="mt-6 flex items-center justify-end gap-x-6">
+        <button
+          type="submit"
+          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm flex items-center gap-3 "
+        >
+          Send Asset
+        </button>
+      </div>
+    </form>
   );
 };
 

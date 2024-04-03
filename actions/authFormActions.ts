@@ -91,7 +91,7 @@ export const handleSignUp = async (formData: FormData) => {
   redirect(`/signin`);
 };
 
-export const createToken = async (formData: FormData) => {
+export async function createToken(previousState: any, formData: FormData) {
   // console.log({ asset_name, unit_name, total_supply, decimals });
   const obj = {
     asset_name: formData.get("asset_name")!.toString(),
@@ -138,6 +138,8 @@ export const createToken = async (formData: FormData) => {
           3
         );
         var assetIndex = result["asset-index"];
+        console.log("create token success ---------------------");
+
         return {
           status: true,
           msg: `Asset ID created: ${assetIndex}`,
@@ -152,7 +154,7 @@ export const createToken = async (formData: FormData) => {
   } else {
     return { status: false, msg: "Cannot Access this method without Login" };
   }
-};
+}
 
 export const getAccountBalances = async () => {
   const cookieStore = cookies().get("authid");
@@ -174,18 +176,21 @@ export const getAccountBalances = async () => {
       var res;
       try {
         res = await indexer.lookupAccountByID(wallet.public_address).do();
-        console.log(res.account.assets);
+        console.log("re:-----", { res });
         var assets = [];
-        for (var i = 0; i < res.account.assets.length; i++) {
-          var id = res.account.assets[i]["asset-id"];
-          var amount = res.account.assets[i].amount;
-          var re = await indexer.lookupAssetByID(id).do();
-          var decimals = re.asset.params.decimals;
-          var name = re.asset.params.name;
-          var unit = re.asset.params["unit-name"];
-          var balance = amount / 10 ** decimals;
-          assets.push({ id, name, unit, balance, decimals });
+        if (res.account.assets) {
+          for (var i = 0; i < res.account.assets.length; i++) {
+            var id = res.account.assets[i]["asset-id"];
+            var amount = res.account.assets[i].amount;
+            var re = await indexer.lookupAssetByID(id).do();
+            var decimals = re.asset.params.decimals;
+            var name = re.asset.params.name;
+            var unit = re.asset.params["unit-name"];
+            var balance = amount / 10 ** decimals;
+            assets.push({ id, name, unit, balance, decimals });
+          }
         }
+
         return {
           status: true,
           balance: res.account.amount / 1000000,
@@ -327,7 +332,7 @@ const checkAddressisOptedToAsset = async (
   }
 };
 
-export const sendAsset = async (formData: FormData) => {
+export const sendAsset = async (prev: any, formData: FormData) => {
   const obj = {
     reciever: formData.get("reciever")?.toString()!,
     asset_id: Number(formData.get("asset_id")),
@@ -335,6 +340,7 @@ export const sendAsset = async (formData: FormData) => {
   };
 
   let { amt, asset_id, reciever } = obj;
+
   const cookieStore = cookies().get("authid");
   const isJWTVerified = (await verifyAccessToken(cookieStore?.value)) as any;
   if (isJWTVerified?.success === true) {
@@ -374,7 +380,6 @@ export const sendAsset = async (formData: FormData) => {
               .getTransactionParams()
               .do();
             if (isopted) {
-              console.log(amt);
               const xferTxn =
                 algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
                   from: wallet.public_address,
