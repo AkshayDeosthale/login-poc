@@ -138,7 +138,7 @@ export async function createToken(previousState: any, formData: FormData) {
           3
         );
         var assetIndex = result["asset-index"];
-        console.log("create token success ---------------------");
+        revalidatePath("/");
 
         return {
           status: true,
@@ -439,6 +439,7 @@ export const sendAsset = async (prev: any, formData: FormData) => {
               atc.addTransaction({ txn: xferTxn, signer: sender_signer });
               try {
                 const result = await atc.execute(algod_client, 4);
+                revalidatePath("/transfer-assets");
                 return {
                   status: true,
                   msg: `Transaction successful in Round ${result.confirmedRound}`,
