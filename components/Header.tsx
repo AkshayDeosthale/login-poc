@@ -26,8 +26,13 @@ export interface UserData {
   assets: any[];
 }
 
-const Header = async (props: Props) => {
+async function getdata() {
   const data: UserData = await getUserDetails();
+  return data;
+}
+
+const Header = async (props: Props) => {
+  const data: UserData = await getdata();
 
   if (!data?.status) {
     redirect("/signin");
@@ -38,7 +43,7 @@ const Header = async (props: Props) => {
       <div className="max-w-5xl mx-auto flex justify-between items-center py-7  ">
         <div className="flex gap-8 items-center">
           <Link href={"/"}>Fungible Token</Link>
-          <Link href={"/non-fungible"}>Non-fungible Token</Link>
+          {/* <Link href={"/non-fungible"}>Non-fungible Token</Link> */}
           <Link href={"/transfer-assets"}>Transfer Token</Link>
         </div>
         <div>
