@@ -13,13 +13,15 @@ const TransferTokenForm = ({ assetList }: Props) => {
   const router = useRouter();
 
   const { toast } = useToast();
+  console.log(state);
+
   useEffect(() => {
     if (state) {
       if (state.status) {
         toast({
           variant: "default",
           title: state.msg,
-          description: state.tx_url,
+
           action: (
             <ToastAction altText="Visitxn">
               <a target="_blank" href={state.tx_url!}>

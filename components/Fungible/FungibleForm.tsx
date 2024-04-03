@@ -16,18 +16,12 @@ const FungibleForm = (props: Props) => {
 
   const { toast } = useToast();
   useEffect(() => {
-    toast({
-      open: true,
-      variant: "default",
-      title:
-        " loreewfdesjkbfskejbfkjsbejfbksbekfbjksebjkfbsejbfkjsbekjfsekjc skj cksebkjs cj sjkcnsekjbckjcs kjc kjsebfkjs cjkenbfkjsebf ",
-    });
     if (state) {
       if (state.status) {
         toast({
           variant: "default",
           title: state.msg,
-          description: state.tx_url,
+
           action: (
             <ToastAction altText="Visitxn">
               <a target="_blank" href={state.tx_url!}>

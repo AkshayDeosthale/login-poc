@@ -36,7 +36,7 @@ const MyAssets = async () => {
               <AccountDetails data={data} />
             </div>
 
-            <MyAssetList assetList={assetList} />
+            <MyAssetList holdinAssetsList={data.assets} assetList={assetList} />
           </div>
         </div>
       </div>
