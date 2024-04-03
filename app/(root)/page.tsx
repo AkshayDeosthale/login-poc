@@ -3,13 +3,13 @@ import { getUserDetails } from "@/actions/globalActions";
 import AccountDetails from "@/components/AccountDetails";
 import { UserData } from "@/components/Header";
 
-// async function getdata() {
-//   const data: UserData = await getUserDetails();
-//   return data;
-// }
+async function getdata() {
+  const data: UserData = await getUserDetails();
+  return data;
+}
 
 const RootPage = async () => {
-  //  const data = await getdata();
+  const data = await getdata();
   return (
     <section className=" max-w-5xl mx-auto ">
       <form action={createToken} className="py-16">
@@ -31,7 +31,7 @@ const RootPage = async () => {
           <div className="border-b border-gray-900/10 pb-12">
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
               <div className="col-span-full ">
-                <AccountDetails />
+                <AccountDetails data={data} />
               </div>
               <div className="sm:col-span-3">
                 <label className="block text-sm font-medium leading-6 text-gray-900">

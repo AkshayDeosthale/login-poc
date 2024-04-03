@@ -2,15 +2,9 @@ import React from "react";
 import { UserData } from "./Header";
 import { getUserDetails } from "@/actions/globalActions";
 
-type Props = {};
+type Props = { data: UserData };
 
-async function getdata() {
-  const data: UserData = await getUserDetails();
-  return data;
-}
-
-const AccountDetails = async (props: Props) => {
-  const data = await getdata();
+const AccountDetails = async ({ data }: Props) => {
   return (
     <>
       <label

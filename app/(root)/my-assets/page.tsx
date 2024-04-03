@@ -1,7 +1,22 @@
+import { AssetType, getCreatedAssets } from "@/actions/authFormActions";
+import { getUserDetails } from "@/actions/globalActions";
 import AccountDetails from "@/components/AccountDetails";
+import { UserData } from "@/components/Header";
 import MyAssetList from "@/components/MyAssetList";
 
-const MyAssets = () => {
+async function getdata() {
+  const data: UserData = await getUserDetails();
+  return data;
+}
+
+async function getAssetdata() {
+  const assetList: AssetType = await getCreatedAssets();
+  return assetList;
+}
+
+const MyAssets = async () => {
+  const data = await getdata();
+  const assetList: AssetType = await getdata();
   return (
     <section className=" max-w-5xl mx-auto ">
       <div className="space-y-12 py-16">
@@ -17,10 +32,10 @@ const MyAssets = () => {
         <div className="border-b border-gray-900/10 pb-12">
           <div className="mt-10 grid grid-cols-4 gap-x-6 gap-y-8 ">
             <div className="col-span-full ">
-              <AccountDetails />
+              <AccountDetails data={data} />
             </div>
 
-            <MyAssetList />
+            <MyAssetList assetList={assetList} />
           </div>
         </div>
       </div>

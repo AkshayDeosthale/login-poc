@@ -1,16 +1,9 @@
 import { AssetType, getCreatedAssets } from "@/actions/authFormActions";
 import React from "react";
 
-type Props = {};
+type Props = { assetList: AssetType };
 
-async function getdata() {
-  const assetList: AssetType = await getCreatedAssets();
-  return assetList;
-}
-
-const MyAssetList = async (props: Props) => {
-  const assetList: AssetType = await getdata();
-
+const MyAssetList = async ({ assetList }: Props) => {
   return (
     <>
       <div className="col-span-full ">Created</div>
