@@ -8,6 +8,7 @@ import { RiNftLine } from "react-icons/ri";
 import { useToast } from "../ui/use-toast";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Spinner } from "../Spinner";
+import NFTproperties from "./NFTproperties";
 
 type Inputs = {
   asset_name: string;
@@ -20,6 +21,10 @@ const NFTform = () => {
   const router = useRouter();
   const { toast } = useToast();
   const [checked, setChecked] = React.useState(false);
+  const [imageFile, setImageFile] = useState<File>();
+  const [listItems, setListItems] = useState<{ key: string; value: string }[]>(
+    []
+  );
   const {
     register,
     handleSubmit,
@@ -33,6 +38,7 @@ const NFTform = () => {
   const [imagePreview, setImagePreview] = useState<any>(null);
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
+    setImageFile(file);
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -44,6 +50,8 @@ const NFTform = () => {
 
   //submit
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    console.log({ imageFile, listItems });
+
     //  const state = await sendAsset(
     //    data.reciever,
     //    Number(data.asset_id),
@@ -142,8 +150,8 @@ const NFTform = () => {
           </label>
         </div>
       </div>
-      <div className="border-b border-gray-900/10 pb-6">
-        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+      <div className="  pb-6">
+        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-6">
           <div className="sm:col-span-3">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               Asset Name
@@ -200,6 +208,11 @@ const NFTform = () => {
               />
             </div>
           </div>
+        </div>
+
+        {/* properties */}
+        <div className=" mt-6 col-span-full">
+          <NFTproperties listItems={listItems} setListItems={setListItems} />
         </div>
       </div>
       <div className="flex items-center justify-center gap-x-6">
