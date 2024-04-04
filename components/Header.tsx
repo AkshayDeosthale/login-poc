@@ -13,7 +13,8 @@ import { getUserDetails } from "@/actions/globalActions";
 import ClickToCopy from "./ClickToCopy";
 import { redirect } from "next/navigation";
 
-type Props = {};
+import { FaUserAstronaut } from "react-icons/fa";
+import { FaAddressCard } from "react-icons/fa6";
 
 export interface UserData {
   username: string;
@@ -32,7 +33,7 @@ async function getdata() {
   return data;
 }
 
-const Header = async (props: Props) => {
+const Header = async () => {
   const data: UserData = await getdata();
 
   if (!data?.status) {
@@ -44,20 +45,24 @@ const Header = async (props: Props) => {
       <div className="max-w-5xl mx-auto flex justify-between items-center py-7  ">
         <div className="flex gap-8 items-center">
           <Link href={"/"}>Fungible Token</Link>
-          {/* <Link href={"/non-fungible"}>Non-fungible Token</Link> */}
+          <Link href={"/non-fungible"}>NFT</Link>
           <Link href={"/transfer-assets"}>Transfer Token</Link>
         </div>
         <div>
           <DropdownMenu>
             <DropdownMenuTrigger className="border border-slate-300 py-1 px-3 rounded-lg hover:border-slate-600 active:border-slate-600 focus:border-slate-600 ">
               <div className="flex flex-col items-end ">
-                <p>{data.username}</p>
-                <p className="truncate w-[200px]">{data.address}</p>
+                <p className="flex items-center gap-3">
+                  {data.username} <FaUserAstronaut />
+                </p>
+                <div className="flex items-center gap-3">
+                  <p className="truncate w-[400px] ">{data.address}</p>
+                  <FaAddressCard />
+                </div>
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[300px]">
               <ClickToCopy address={data.address} />
-
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <Link href="/my-assets">My Assets</Link>
