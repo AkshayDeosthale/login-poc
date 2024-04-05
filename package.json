@@ -22,6 +22,7 @@
     "lucide-react": "^0.364.0",
     "mime-types": "^2.1.35",
     "next": "14.1.4",
+    "nft.storage": "^7.1.1",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.51.2",

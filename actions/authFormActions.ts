@@ -80,6 +80,39 @@ export const handleSignIn = async (username: string, password: string) => {
   }
 };
 
+const transferTestTokens = async (reciever: string) => {
+  const mastet_private =
+    "step fury fatigue brick recall more level ignore explain figure diary van opinion antique grief when wild hockey breeze enforce cherry buffalo now ability upset";
+  const account = algosdk.mnemonicToSecretKey(mastet_private);
+  const algod_client = new algosdk.Algodv2(
+    "",
+    process.env.ALGOD_URL!,
+    process.env.ALGOD_PORT
+  );
+  const suggestedParams = await algod_client.getTransactionParams().do();
+  const xferTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+    from: account.addr,
+    to: reciever,
+    suggestedParams,
+    amount:5000000
+  });
+  const signedXferTxn = xferTxn.signTxn(
+    account.sk
+  );
+  try {
+    await algod_client.sendRawTransaction(signedXferTxn).do();
+    const result = await algosdk.waitForConfirmation(
+      algod_client,
+      xferTxn.txID().toString(),
+      3
+    );
+    var confirmedRound = result["confirmed-round"];
+    return true;
+  } catch (e: any) {
+    return false;
+  }
+};
+
 export const handleSignUp = async (
   username: string,
   password: string,
@@ -99,9 +132,11 @@ export const handleSignUp = async (
   });
   await prismaDisconnect();
   if (user) {
+    var res = await transferTestTokens(account.addr);
+    var msg = "User Ceated " + (res==true)?"& Added 5 Algos":"";
     return {
       status: true,
-      message: "User Ceated",
+      message: msg,
       data: user,
     };
   } else {
@@ -184,6 +219,7 @@ export const getAccountBalances = async () => {
     });
 
     if (wallet) {
+      console.log("wallet--------", wallet);
       const indexer = new algosdk.Indexer(
         "",
         process.env.INDEXER_URL!,
