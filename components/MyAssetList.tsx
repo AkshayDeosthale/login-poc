@@ -1,5 +1,5 @@
-import { AssetType, getCreatedAssets } from "@/actions/authFormActions";
-import React from "react";
+import { AssetType } from "@/actions/authFormActions";
+import { NFTdetailModal } from "./NFT/NFTdetailModal";
 
 type Props = { assetList: AssetType; holdinAssetsList: any };
 
@@ -37,6 +37,17 @@ const MyAssetList = async ({ assetList, holdinAssetsList }: Props) => {
                 {asset.balance} {asset.unit_name}
               </p>
             </div>
+          </div>
+        ))}
+      </div>
+      <div className="col-span-full ">NFT Assets</div>
+      <div className="col-span-full grid grid-cols-3 gap-3 ">
+        {[1, 2, 3, 4, 5, 6, 7].map((asset, key) => (
+          <div
+            key={key}
+            className="cursor-default  border border-slate-300 p-6 rounded-lg hover:border-slate-600 active:border-slate-600 focus:border-slate-600 transition-all duration-200 ease-in-out "
+          >
+            <NFTdetailModal />
           </div>
         ))}
       </div>
