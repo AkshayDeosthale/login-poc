@@ -23,7 +23,7 @@ const AssetTransferPage = async () => {
   const assetList: AssetType = await getAssetdata();
   return (
     <section className=" max-w-5xl mx-auto ">
-      <div className="space-y-12 py-16">
+      <div className="space-y-12 py-6">
         <div className="border-b border-gray-900/10 pb-12">
           <h2 className="text-base font-semibold leading-7 text-gray-900">
             Transfer your tokens
@@ -33,7 +33,7 @@ const AssetTransferPage = async () => {
           </p>
         </div>
 
-        <div className="border-b border-gray-900/10 pb-12">
+        <div className="border-b border-gray-900/10 pb-6">
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div className="col-span-full ">
               <AccountDetails data={data} />

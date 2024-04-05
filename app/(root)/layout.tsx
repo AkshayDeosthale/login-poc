@@ -7,7 +7,7 @@ const RootLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <main className="max-lg:px-3">
+    <main className="max-lg:px-5">
       <Header />
       {children}
     </main>

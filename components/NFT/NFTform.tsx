@@ -2,7 +2,7 @@
 import { createNFT } from "@/actions/nftFormActions";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { IoMdPhotos } from "react-icons/io";
 import { IoCloseCircle } from "react-icons/io5";
@@ -37,6 +37,19 @@ function dataURItoBlob(dataURI: any) {
 
   // Return the Blob object
   return new Blob([arrayBuffer], { type: mimeString });
+}
+
+function convertDataToJson(data: { key: string; value: string }[]) {
+  const convertedData: any = {};
+
+  data.forEach((item) => {
+    convertedData[item.key] = {
+      type: "string",
+      description: item.value,
+    };
+  });
+
+  return convertedData;
 }
 
 const NFTform = () => {
@@ -76,17 +89,6 @@ const NFTform = () => {
 
   //submit
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    console.log(
-      data.asset_name,
-      data.unit_name,
-      data.description,
-      Number(data.total_tokens),
-      Number(data.decimals) || 0,
-      imageFileBlob,
-      listItems,
-      originalFile
-    );
-
     const formdata = new FormData();
     // Assuming data contains values for asset_name, unit_name, description, total_tokens, and decimals
     formdata.append("asset_name", data.asset_name);
@@ -101,7 +103,9 @@ const NFTform = () => {
       formdata.append("image", imageFileBlob);
     }
 
-    const state = await createNFT(formdata, listItems);
+    const convertedData = convertDataToJson(listItems);
+
+    const state = await createNFT(formdata, convertedData);
 
     if (state) {
       if (state.status) {
@@ -126,6 +130,7 @@ const NFTform = () => {
       }
     }
   };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className=" space-y-3 mt-6">
       <div className="col-span-full">

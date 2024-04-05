@@ -98,7 +98,9 @@
   width: 400px; /* Adjust the width value as needed */
 }
 
-div input {
+div input,
+div textarea,
+option {
   padding-left: 10px;
   padding-right: 10px;
 }
