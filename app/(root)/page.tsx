@@ -1,10 +1,7 @@
-import { createToken } from "@/actions/authFormActions";
 import { getUserDetails } from "@/actions/globalActions";
 import AccountDetails from "@/components/AccountDetails";
 import FungibleForm from "@/components/Fungible/FungibleForm";
 import { UserData } from "@/components/Header";
-import { createNFT } from "@/actions/nftFormActions";
-
 
 async function getdata() {
   const data: UserData = await getUserDetails()!;
@@ -13,7 +10,6 @@ async function getdata() {
 
 const RootPage = async () => {
   const data = await getdata();
-  console.log(await createNFT());
 
   return (
     <section className=" max-w-5xl mx-auto ">

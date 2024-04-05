@@ -94,11 +94,9 @@ const transferTestTokens = async (reciever: string) => {
     from: account.addr,
     to: reciever,
     suggestedParams,
-    amount:5000000
+    amount: 5000000,
   });
-  const signedXferTxn = xferTxn.signTxn(
-    account.sk
-  );
+  const signedXferTxn = xferTxn.signTxn(account.sk);
   try {
     await algod_client.sendRawTransaction(signedXferTxn).do();
     const result = await algosdk.waitForConfirmation(
@@ -133,7 +131,7 @@ export const handleSignUp = async (
   await prismaDisconnect();
   if (user) {
     var res = await transferTestTokens(account.addr);
-    var msg = "User Ceated " + (res==true)?"& Added 5 Algos":"";
+    var msg = "User Ceated " + (res == true) ? "& Added 5 Algos" : "";
     return {
       status: true,
       message: msg,
@@ -219,7 +217,6 @@ export const getAccountBalances = async () => {
     });
 
     if (wallet) {
-      console.log("wallet--------", wallet);
       const indexer = new algosdk.Indexer(
         "",
         process.env.INDEXER_URL!,
@@ -228,7 +225,7 @@ export const getAccountBalances = async () => {
       var res;
       try {
         res = await indexer.lookupAccountByID(wallet.public_address).do();
-        console.log("re:-----", { res });
+
         var assets = [];
         if (res.account.assets) {
           for (var i = 0; i < res.account.assets.length; i++) {
@@ -251,7 +248,6 @@ export const getAccountBalances = async () => {
           canTransact: wallet.canTransact,
         };
       } catch (e: any) {
-        console.log(e.message);
         return {
           status: true,
           balance: 0,
@@ -327,7 +323,7 @@ export const getCreatedAssets = async () => {
           break;
         }
       }
-      console.log(balances);
+
       var filtered_assets = [];
       for (var i = 0; i < assets.length; i++) {
         var id = assets[i]["index"];
@@ -344,7 +340,7 @@ export const getCreatedAssets = async () => {
         }
         filtered_assets.push({ id, decimals, name, unit_name, balance });
       }
-      console.log(filtered_assets);
+
       return { status: true, assets: filtered_assets };
     } else {
       return { status: false, msg: "unable to find wallet" };
@@ -532,7 +528,4 @@ export const MintNFTArweave = async () => {
     },
     body: data,
   });
-
-  console.log(response.status);
-  console.log(response.body);
 };
