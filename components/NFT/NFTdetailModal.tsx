@@ -37,11 +37,18 @@ export function NFTdetailModal({ asset }: Props) {
             />
           </div>
           <Badge
-            className={`absolute right-4 bottom-4 ${
+            className={`absolute right-3 bottom-1 ${
               asset.isCreated ? "bg-green-500  text-white" : "hidden"
             } `}
           >
             Created
+          </Badge>
+          <Badge
+            className={` ${
+              asset.isFractional ? "bg-orange-500  text-white" : "hidden"
+            }  absolute left-3 bottom-1`}
+          >
+            Fractional NFT
           </Badge>
         </div>
       </DialogTrigger>

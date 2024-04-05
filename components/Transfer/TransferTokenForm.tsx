@@ -181,11 +181,7 @@ const TransferTokenForm = ({ assetListNew }: Props) => {
             {...register("nft_asset_id")}
           >
             {nonfungible?.assets?.map((asset, key) => (
-              <option
-                key={key}
-                onClick={() => console.log(asset.image_url)}
-                value={asset["asset-id"]}
-              >
+              <option key={key} value={asset["asset-id"]}>
                 {asset.asset_details?.assetName} /{" "}
                 {asset.asset_details?.unitName} / {asset.balance}
               </option>
