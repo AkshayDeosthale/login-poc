@@ -113,7 +113,7 @@ const TransferTokenForm = ({ assetListNew }: Props) => {
                 fill
                 objectPosition="center"
                 objectFit="contain"
-                src={url}
+                src={url || "/notavail.jpg"}
                 alt="Uploaded Asset"
                 className="mx-auto object-cover rounded-lg"
               />
