@@ -94,11 +94,9 @@ const transferTestTokens = async (reciever: string) => {
     from: account.addr,
     to: reciever,
     suggestedParams,
-    amount:5000000
+    amount: 5000000,
   });
-  const signedXferTxn = xferTxn.signTxn(
-    account.sk
-  );
+  const signedXferTxn = xferTxn.signTxn(account.sk);
   try {
     await algod_client.sendRawTransaction(signedXferTxn).do();
     const result = await algosdk.waitForConfirmation(
@@ -133,7 +131,7 @@ export const handleSignUp = async (
   await prismaDisconnect();
   if (user) {
     var res = await transferTestTokens(account.addr);
-    var msg = "User Ceated " + (res==true)?"& Added 5 Algos":"";
+    var msg = "User Ceated " + (res == true) ? "& Added 5 Algos" : "";
     return {
       status: true,
       message: msg,
@@ -508,6 +506,124 @@ export const sendAsset = async (
       }
 
       // return {status:true,balance:res.account.amount/1000000}
+    } else {
+      return { status: false, msg: "unable to find wallet" };
+    }
+  } else {
+    return { status: false, msg: "Cannot Access this method without Login" };
+  }
+};
+
+export const getAccountAssets = async () => {
+  const cookieStore = cookies().get("authid");
+  const isJWTVerified = (await verifyAccessToken(cookieStore?.value)) as any;
+  if (isJWTVerified?.success === true) {
+    var wallet = await prisma.user.findUnique({
+      where: {
+        username: isJWTVerified?.data?.username,
+      },
+    });
+
+    if (wallet) {
+      const indexer = new algosdk.Indexer(
+        "",
+        process.env.INDEXER_URL!,
+        process.env.INDEXER_PORT!
+      );
+      var assets :any = [
+        {
+          type: "ft",
+          name: "Fungible Token",
+          assets: [],
+        },
+        {
+          type: "nft",
+          name: "Non Fungible Token",
+          assets: [],
+        },
+      ];
+      var temp_assets = [];
+      var assets_result = await indexer
+        .lookupAccountAssets(wallet.public_address)
+        .do();
+      for (var i = 0; i < assets_result.assets.length; i++) {
+        temp_assets.push(assets_result.assets[i]);
+      }
+      while (true) {
+        if (assets_result.nextToken) {
+          var result = await indexer
+            .lookupAccountAssets(wallet.public_address)
+            .nextToken(assets_result.nextToken)
+            .do();
+          for (var i = 0; i < result.assets.length; i++) {
+            temp_assets.push(result.assets[i]);
+          }
+        } else {
+          break;
+        }
+      }
+      const all_asset_ids = [];
+      var all_assets : any = {};
+      for(var i=0;i<temp_assets.length;i++){
+        all_asset_ids.push(temp_assets[i]['asset-id']);
+        all_assets[temp_assets[i]['asset-id']] = temp_assets[i];
+      }
+      var db_res = await prisma.assetDetails.findMany({
+        where:{
+          assetId:{
+            in: all_asset_ids
+          }
+        }
+      });
+      var completed_assets : any = [];
+      for(var i=0;i<db_res.length;i++){
+        var row = db_res[i];
+        all_assets[row.assetId].asset_details = row;
+        completed_assets.push(row.assetId);
+      }
+      var remaining_assets = all_asset_ids.filter((element) => !completed_assets.includes(element));
+      for(var i=0;i<remaining_assets.length;i++){
+        var indexer_result = await indexer.lookupAssetByID(remaining_assets[i]).do();
+        if(indexer_result.asset){
+          const row = {
+            assetId : indexer_result.asset.index,
+            creator: indexer_result.asset.params.creator,
+            assetName:indexer_result.asset.params.name,
+            unitName: indexer_result.asset.params['unit-name'],
+            total : indexer_result.asset.params.total,
+            decimals : indexer_result.asset.params.decimals,
+            defaultFrozen: indexer_result.asset.params['default-frozen'],
+            url : indexer_result.asset.params.url
+          }
+          const assetDetail = await prisma.assetDetails.create({
+            data : row
+          });
+          if(assetDetail){
+            all_assets[row.assetId].asset_details = row;
+          }else{
+            continue;
+          }
+        }else{
+          continue;
+        }
+      }
+      for(const key in all_assets){
+        if(all_assets[key].asset_details.url===null){
+          var balance = all_assets[key].amount/(10**all_assets[key].asset_details.decimals);
+          var isCreated = (wallet.public_address==all_assets[key].asset_details.creator)?true:false;
+          assets[0].assets.push({...all_assets[key],balance: balance,isCreated:isCreated});
+        }else{
+          const ipfs_gateway = "https://ipfs.algonode.xyz/ipfs/";
+          var metadata_res = await fetch(ipfs_gateway+all_assets[key].asset_details.url.split("://")[1]);
+          var metadata = await metadata_res.json();
+          var balance = all_assets[key].amount/(10**all_assets[key].asset_details.decimals);
+          var isCreated = (wallet.public_address==all_assets[key].asset_details.creator)?true:false;
+          var isFractional = (all_assets[key].asset_details.decimals>0)?true:false;
+          var image_url = ipfs_gateway+metadata.image.split("://")[1];
+          assets[1].assets.push({...all_assets[key],balance: balance,isCreated:isCreated,metadata,isFractional,image_url});
+        }
+      }
+      return {status:true,assets}
     } else {
       return { status: false, msg: "unable to find wallet" };
     }

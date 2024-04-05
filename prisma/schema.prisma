@@ -19,3 +19,14 @@ model User {
   canTransact        Boolean  @default(false)
 }
 
+model AssetDetails {
+  assetId Int @unique
+  creator String
+  assetName String?
+  unitName String?
+  total Int 
+  decimals Int
+  defaultFrozen Boolean
+  url String?
+}
+
