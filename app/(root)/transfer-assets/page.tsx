@@ -1,5 +1,7 @@
 import {
+  AllAssetType,
   AssetType,
+  getAccountAssets,
   getCreatedAssets,
   sendAsset,
 } from "@/actions/authFormActions";
@@ -13,16 +15,16 @@ async function getdata() {
   return data;
 }
 
-async function getAssetdata() {
-  const assetList: AssetType = await getCreatedAssets();
+async function getAssetdatanew() {
+  const assetList: any = await getAccountAssets();
   return assetList;
 }
 
 const AssetTransferPage = async () => {
   const data = await getdata();
-  const assetList: AssetType = await getAssetdata();
+  const assetListNew: any = await getAssetdatanew();
   return (
-    <section className=" max-w-5xl mx-auto ">
+    <section className=" max-w-5xl mx-auto min-h-screen pb-16 ">
       <div className="space-y-12 py-6">
         <div className="border-b border-gray-900/10 pb-12">
           <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -44,7 +46,7 @@ const AssetTransferPage = async () => {
         </div>
       </div>
 
-      <TransferTokenForm assetList={assetList} />
+      <TransferTokenForm assetListNew={assetListNew} />
     </section>
   );
 };

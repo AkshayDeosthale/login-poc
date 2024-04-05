@@ -12,44 +12,50 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Image from "next/image";
+import { Asset } from "@/actions/authFormActions";
+import { Badge } from "../ui/badge";
 
-export function NFTdetailModal() {
+type Props = {
+  asset: Asset;
+};
+
+export function NFTdetailModal({ asset }: Props) {
+  const jsonData = JSON.stringify(asset.metadata, null, 2);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div className="text-center w-full ">
-          <div className="relative h-[330px] ">
+        <div className="text-center relative w-full ">
+          <div className="relative h-[330px] cursor-pointer  ">
             <Image
               fill
               objectPosition="center"
               objectFit="contain"
-              src={"/moon.jpg"}
+              src={asset.image_url}
               alt="Uploaded Asset"
               className="mx-auto object-cover rounded-lg"
             />
           </div>
+          <Badge
+            className={`absolute right-4 bottom-4 ${
+              asset.isCreated ? "bg-green-500  text-white" : "hidden"
+            } `}
+          >
+            Created
+          </Badge>
         </div>
-        {/* <Button variant="outline">Share</Button> */}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-5xl">
         <DialogHeader>
-          <DialogTitle>Share link</DialogTitle>
+          <DialogTitle>{asset.asset_details.assetName}</DialogTitle>
           <DialogDescription>
-            Anyone who has this link will be able to view this.
+            Balance : {asset.balance} {asset.asset_details.unitName}
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center space-x-2">
-          <div className="grid flex-1 gap-2">
-            <input
-              id="link"
-              defaultValue="https://ui.shadcn.com/docs/installation"
-              readOnly
-            />
+          <div className=" w-full bg-white p-6 rounded-lg shadow-md">
+            <pre className="whitespace-pre-wrap text-sm">{jsonData}</pre>
           </div>
-          <Button type="submit" size="sm" className="px-3">
-            <span className="sr-only">Copy</span>
-            <Copy className="h-4 w-4" />
-          </Button>
         </div>
         <DialogFooter className="sm:justify-start">
           <DialogClose asChild>

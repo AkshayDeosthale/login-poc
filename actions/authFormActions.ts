@@ -7,6 +7,46 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getUserDetails } from "./globalActions";
+interface ResponseToken {
+  type: "ft" | "nft";
+  name: "Fungible Token" | "Non Fungible Token";
+  assets: Asset[];
+}
+
+export interface Asset {
+  amount: number;
+  "asset-id": number;
+  deleted: boolean;
+  "is-frozen": boolean;
+  "opted-in-at-round": number;
+  asset_details: {
+    assetId: number;
+    creator: string;
+    assetName: string;
+    unitName: string;
+    total: number;
+    decimals: number;
+    defaultFrozen: boolean;
+    url: string | null;
+  };
+  balance: number;
+  isCreated: boolean;
+  metadata: {
+    name: string;
+    description: string;
+    image_integrity: string;
+    image_mimetype: string;
+    properties: { theme: string; background: string };
+    image: string;
+  };
+  isFractional: boolean;
+  image_url: string;
+}
+
+export type AllAssetType = {
+  status: boolean;
+  assets: ResponseToken[];
+};
 
 export type AssetType =
   | {
@@ -513,7 +553,7 @@ export const sendAsset = async (
   }
 };
 
-export const getAccountAssets = async () => {
+export const getAccountAssets = async (): Promise<AllAssetType | any> => {
   const cookieStore = cookies().get("authid");
   const isJWTVerified = (await verifyAccessToken(cookieStore?.value)) as any;
   if (isJWTVerified?.success === true) {
@@ -529,7 +569,7 @@ export const getAccountAssets = async () => {
         process.env.INDEXER_URL!,
         process.env.INDEXER_PORT!
       );
-      var assets :any = [
+      var assets: any = [
         {
           type: "ft",
           name: "Fungible Token",
@@ -562,67 +602,95 @@ export const getAccountAssets = async () => {
         }
       }
       const all_asset_ids = [];
-      var all_assets : any = {};
-      for(var i=0;i<temp_assets.length;i++){
-        all_asset_ids.push(temp_assets[i]['asset-id']);
-        all_assets[temp_assets[i]['asset-id']] = temp_assets[i];
+      var all_assets: any = {};
+      for (var i = 0; i < temp_assets.length; i++) {
+        all_asset_ids.push(temp_assets[i]["asset-id"]);
+        all_assets[temp_assets[i]["asset-id"]] = temp_assets[i];
       }
       var db_res = await prisma.assetDetails.findMany({
-        where:{
-          assetId:{
-            in: all_asset_ids
-          }
-        }
+        where: {
+          assetId: {
+            in: all_asset_ids,
+          },
+        },
       });
-      var completed_assets : any = [];
-      for(var i=0;i<db_res.length;i++){
+      var completed_assets: any = [];
+      for (var i = 0; i < db_res.length; i++) {
         var row = db_res[i];
         all_assets[row.assetId].asset_details = row;
         completed_assets.push(row.assetId);
       }
-      var remaining_assets = all_asset_ids.filter((element) => !completed_assets.includes(element));
-      for(var i=0;i<remaining_assets.length;i++){
-        var indexer_result = await indexer.lookupAssetByID(remaining_assets[i]).do();
-        if(indexer_result.asset){
+      var remaining_assets = all_asset_ids.filter(
+        (element) => !completed_assets.includes(element)
+      );
+      for (var i = 0; i < remaining_assets.length; i++) {
+        var indexer_result = await indexer
+          .lookupAssetByID(remaining_assets[i])
+          .do();
+        if (indexer_result.asset) {
           const row = {
-            assetId : indexer_result.asset.index,
+            assetId: indexer_result.asset.index,
             creator: indexer_result.asset.params.creator,
-            assetName:indexer_result.asset.params.name,
-            unitName: indexer_result.asset.params['unit-name'],
-            total : indexer_result.asset.params.total,
-            decimals : indexer_result.asset.params.decimals,
-            defaultFrozen: indexer_result.asset.params['default-frozen'],
-            url : indexer_result.asset.params.url
-          }
+            assetName: indexer_result.asset.params.name,
+            unitName: indexer_result.asset.params["unit-name"],
+            total: indexer_result.asset.params.total,
+            decimals: indexer_result.asset.params.decimals,
+            defaultFrozen: indexer_result.asset.params["default-frozen"],
+            url: indexer_result.asset.params.url,
+          };
           const assetDetail = await prisma.assetDetails.create({
-            data : row
+            data: row,
           });
-          if(assetDetail){
+          if (assetDetail) {
             all_assets[row.assetId].asset_details = row;
-          }else{
+          } else {
             continue;
           }
-        }else{
+        } else {
           continue;
         }
       }
-      for(const key in all_assets){
-        if(all_assets[key].asset_details.url===null){
-          var balance = all_assets[key].amount/(10**all_assets[key].asset_details.decimals);
-          var isCreated = (wallet.public_address==all_assets[key].asset_details.creator)?true:false;
-          assets[0].assets.push({...all_assets[key],balance: balance,isCreated:isCreated});
-        }else{
+      for (const key in all_assets) {
+        if (all_assets[key].asset_details.url === null) {
+          var balance =
+            all_assets[key].amount /
+            10 ** all_assets[key].asset_details.decimals;
+          var isCreated =
+            wallet.public_address == all_assets[key].asset_details.creator
+              ? true
+              : false;
+          assets[0].assets.push({
+            ...all_assets[key],
+            balance: balance,
+            isCreated: isCreated,
+          });
+        } else {
           const ipfs_gateway = "https://ipfs.algonode.xyz/ipfs/";
-          var metadata_res = await fetch(ipfs_gateway+all_assets[key].asset_details.url.split("://")[1]);
+          var metadata_res = await fetch(
+            ipfs_gateway + all_assets[key].asset_details.url.split("://")[1]
+          );
           var metadata = await metadata_res.json();
-          var balance = all_assets[key].amount/(10**all_assets[key].asset_details.decimals);
-          var isCreated = (wallet.public_address==all_assets[key].asset_details.creator)?true:false;
-          var isFractional = (all_assets[key].asset_details.decimals>0)?true:false;
-          var image_url = ipfs_gateway+metadata.image.split("://")[1];
-          assets[1].assets.push({...all_assets[key],balance: balance,isCreated:isCreated,metadata,isFractional,image_url});
+          var balance =
+            all_assets[key].amount /
+            10 ** all_assets[key].asset_details.decimals;
+          var isCreated =
+            wallet.public_address == all_assets[key].asset_details.creator
+              ? true
+              : false;
+          var isFractional =
+            all_assets[key].asset_details.decimals > 0 ? true : false;
+          var image_url = ipfs_gateway + metadata.image.split("://")[1];
+          assets[1].assets.push({
+            ...all_assets[key],
+            balance: balance,
+            isCreated: isCreated,
+            metadata,
+            isFractional,
+            image_url,
+          });
         }
       }
-      return {status:true,assets}
+      return { status: true, assets };
     } else {
       return { status: false, msg: "unable to find wallet" };
     }

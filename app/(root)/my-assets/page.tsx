@@ -1,4 +1,4 @@
-import { AssetType, getCreatedAssets } from "@/actions/authFormActions";
+import { getAccountAssets } from "@/actions/authFormActions";
 import { getUserDetails } from "@/actions/globalActions";
 import AccountDetails from "@/components/AccountDetails";
 import { UserData } from "@/components/Header";
@@ -9,14 +9,14 @@ async function getdata() {
   return data;
 }
 
-async function getAssetdata() {
-  const assetList: AssetType = await getCreatedAssets();
+async function getAssetdatanew() {
+  const assetList: any = await getAccountAssets();
   return assetList;
 }
 
 const MyAssets = async () => {
   const data = await getdata();
-  const assetList: AssetType = await getAssetdata();
+  const assetListNew: any = await getAssetdatanew();
 
   return (
     <section className=" max-w-5xl mx-auto ">
@@ -36,7 +36,7 @@ const MyAssets = async () => {
               <AccountDetails data={data} />
             </div>
 
-            <MyAssetList holdinAssetsList={data.assets} assetList={assetList} />
+            <MyAssetList assetListNew={assetListNew} />
           </div>
         </div>
       </div>

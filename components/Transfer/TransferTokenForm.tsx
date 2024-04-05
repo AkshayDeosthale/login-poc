@@ -1,14 +1,16 @@
 "use client";
-import { AssetType, sendAsset } from "@/actions/authFormActions";
+import { AllAssetType, AssetType, sendAsset } from "@/actions/authFormActions";
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { ToastAction } from "../ui/toast";
 import { useToast } from "../ui/use-toast";
 import { Spinner } from "../Spinner";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 
-type Props = { assetList: AssetType };
+type Props = {
+  assetListNew: AllAssetType;
+};
 
 type Inputs = {
   reciever: string;
@@ -17,11 +19,14 @@ type Inputs = {
   nft_asset_id: number;
 };
 
-const TransferTokenForm = ({ assetList }: Props) => {
+const TransferTokenForm = ({ assetListNew }: Props) => {
+  const fungible = assetListNew.assets[0];
+  const nonfungible = assetListNew.assets[1];
+
   const router = useRouter();
   const { toast } = useToast();
   const [isNFT, setIsNFT] = useState(false);
-
+  const [url, seturl] = useState("");
   const {
     register,
     handleSubmit,
@@ -32,23 +37,26 @@ const TransferTokenForm = ({ assetList }: Props) => {
     formState: { errors, isSubmitting },
   } = useForm<Inputs>();
 
-  const nftUrl = useMemo(() => {
-    return "";
-  }, [getValues("nft_asset_id")]);
-
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    const foundAsset = assetList?.assets?.find(
-      (asset) => asset.id == data.asset_id
-    );
+    let foundAsset;
+    if (isNFT) {
+      foundAsset = nonfungible?.assets?.find(
+        (asset) => asset["asset-id"] == data.nft_asset_id
+      );
+    } else {
+      foundAsset = fungible?.assets?.find(
+        (asset) => asset["asset-id"] == data.asset_id
+      );
+    }
 
     if (foundAsset) {
       var decimalPart = data.amt.toString().split(".")[1];
       const decimalLength = decimalPart?.length || 0;
 
-      if (foundAsset.decimals !== decimalLength) {
+      if (foundAsset.asset_details.decimals !== decimalLength) {
         setError("amt", {
           type: "manual",
-          message: `Incorrect Decimal Value , require ${foundAsset.decimals}`,
+          message: `Incorrect Decimal Value , require ${foundAsset.asset_details.decimals}`,
         });
         return;
       }
@@ -56,7 +64,7 @@ const TransferTokenForm = ({ assetList }: Props) => {
 
     const state = await sendAsset(
       data.reciever,
-      Number(data.asset_id),
+      isNFT ? Number(data.nft_asset_id) : Number(data.asset_id),
       Number(data.amt)
     );
     if (state) {
@@ -85,6 +93,13 @@ const TransferTokenForm = ({ assetList }: Props) => {
     }
   };
 
+  useEffect(() => {
+    const nft = nonfungible.assets.find(
+      (token) => token["asset-id"] == getValues("nft_asset_id")
+    );
+    seturl(nft?.image_url || "");
+  }, [watch("nft_asset_id")]);
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -98,7 +113,7 @@ const TransferTokenForm = ({ assetList }: Props) => {
                 fill
                 objectPosition="center"
                 objectFit="contain"
-                src={nftUrl}
+                src={url}
                 alt="Uploaded Asset"
                 className="mx-auto object-cover rounded-lg"
               />
@@ -144,9 +159,10 @@ const TransferTokenForm = ({ assetList }: Props) => {
             } block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6`}
             {...register("asset_id")}
           >
-            {assetList?.assets?.map((asset, key) => (
-              <option key={key} value={asset.id}>
-                {asset.name} / {asset.unit_name} / {asset.balance}
+            {fungible?.assets?.map((asset, key) => (
+              <option key={key} value={asset["asset-id"]}>
+                {asset.asset_details?.assetName} /{" "}
+                {asset.asset_details?.unitName} / {asset.balance}
               </option>
             ))}
           </select>
@@ -164,9 +180,14 @@ const TransferTokenForm = ({ assetList }: Props) => {
             } block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6`}
             {...register("nft_asset_id")}
           >
-            {assetList?.assets?.map((asset, key) => (
-              <option key={key} value={asset.id}>
-                {asset.name} / {asset.unit_name} / {asset.balance}
+            {nonfungible?.assets?.map((asset, key) => (
+              <option
+                key={key}
+                onClick={() => console.log(asset.image_url)}
+                value={asset["asset-id"]}
+              >
+                {asset.asset_details?.assetName} /{" "}
+                {asset.asset_details?.unitName} / {asset.balance}
               </option>
             ))}
           </select>
