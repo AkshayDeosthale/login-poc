@@ -44,6 +44,7 @@ const TransferTokenForm = ({ assetList }: Props) => {
         return;
       }
     }
+
     const state = await sendAsset(
       data.reciever,
       Number(data.asset_id),
