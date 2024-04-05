@@ -35,7 +35,10 @@ async function getFileDetails(filePath: string) {
   }
 }
 
-async function calculateSHA256(blobContent: Blob): Promise<string> {
+async function calculateSHA256(blobContent: Blob | undefined): Promise<string> {
+  if (!blobContent) {
+    throw Error("No Blob found in calculateSHA256");
+  }
   try {
     var buffer = Buffer.from(await blobContent.arrayBuffer());
     const hash = crypto.createHash("sha256");
@@ -50,7 +53,18 @@ const NFT_STORAGE_TOKEN =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDQxRENkYTZDYzU3YjJhQmJiQTkxOWJBNjZlMmMyMzI5NkI4ZDZCMjgiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcxMjA1NzYxODU1NywibmFtZSI6IlNhdGlzaCJ9.rbVKcvMTidS-dXpFT0oGt0maUtjmldyfnT9pg61JtMg";
 const client = new NFTStorage({ token: NFT_STORAGE_TOKEN });
 
-export const createNFT = async () => {
+export const createNFT = async (
+  formData: FormData,
+  properties: { key: string; value: string }[]
+) => {
+  const asset_name = formData.get("asset_name")?.toString();
+  const unit_name = formData.get("unit_name")?.toString();
+  const nft_description = formData.get("description")?.toString();
+  let total_nfts = Number(formData.get("total_tokens"));
+  const decimals = Number(formData.get("decimals"));
+  const image = formData.get("image");
+  const originalFile = formData.get("originalFile") as File;
+
   const cookieStore = cookies().get("authid");
   const isJWTVerified = (await verifyAccessToken(cookieStore?.value)) as any;
   if (isJWTVerified?.success === true) {
@@ -60,44 +74,29 @@ export const createNFT = async () => {
       },
     });
     if (wallet) {
-      const asset_name = "ALGO-MOON";
-      const unit_name = "MOONS";
-      const nft_description = "Some description";
-      const image = "temp/moon.jpg";
-      let total_nfts = 1;
-      const properties = {
-        theme: "snow",
-        background: "white",
-      };
-      const decimals = 3; //default value for normal nft
-
       if (decimals > 0) {
         total_nfts = total_nfts * 10 ** decimals;
       }
 
       try {
-        const image_details = await getFileDetails(image); // gets image details like blob,name,mimetypr
-        const hash = await calculateSHA256(image_details.blobContent) //calculates hash of the blob
+        // const image_details = await getFileDetails(image); // gets image details like blob,name,mimetypr
+        const hash = await calculateSHA256(image as Blob) //calculates hash of the blob
           .then(async (hash) => {
             return hash;
           })
           .catch((error) => {
             return { status: false, msg: "Error calculating SHA256 hash:" };
           });
+
         const metadataa = {
-          name: asset_name,
-          description: nft_description,
-          image: new File(
-            [image_details.blobContent],
-            image_details.filename!,
-            {
-              type: image_details.mimetype,
-            }
-          ),
+          name: asset_name!,
+          description: nft_description!,
+          image: originalFile as File,
           image_integrity: `sha256-${hash}`,
-          image_mimetype: image_details.mimetype,
+          image_mimetype: originalFile?.type,
           properties: properties,
         };
+
         const metadata = await client.store(metadataa); // uploading files to ipfs
         if (metadata.url) {
           const algod_client = new algosdk.Algodv2(

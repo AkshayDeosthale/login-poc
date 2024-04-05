@@ -72,7 +72,7 @@ const NFTproperties = ({ listItems, setListItems }: Props) => {
           placeholder="Enter value"
           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
         />
-        <Button variant={"default"} onClick={handleAddItem}>
+        <Button type={"button"} variant={"default"} onClick={handleAddItem}>
           <IoAddOutline />
         </Button>
       </div>

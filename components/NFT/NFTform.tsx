@@ -1,13 +1,15 @@
 "use client";
+import { createNFT } from "@/actions/nftFormActions";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { IoMdPhotos } from "react-icons/io";
 import { IoCloseCircle } from "react-icons/io5";
 import { RiNftLine } from "react-icons/ri";
-import { useToast } from "../ui/use-toast";
-import { SubmitHandler, useForm } from "react-hook-form";
 import { Spinner } from "../Spinner";
+import { ToastAction } from "../ui/toast";
+import { useToast } from "../ui/use-toast";
 import NFTproperties from "./NFTproperties";
 
 type Inputs = {
@@ -15,13 +17,47 @@ type Inputs = {
   unit_name: string;
   total_tokens: number;
   decimals: number;
+  description: string;
 };
+
+function dataURItoBlob(dataURI: any) {
+  // Convert base64/URLEncoded data component to raw binary data
+  const byteString = atob(dataURI.split(",")[1]);
+
+  // Separate out the mime component
+  const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+
+  // Write the bytes of the string to an ArrayBuffer
+  const arrayBuffer = new ArrayBuffer(byteString.length);
+  const uint8Array = new Uint8Array(arrayBuffer);
+
+  for (let i = 0; i < byteString.length; i++) {
+    uint8Array[i] = byteString.charCodeAt(i);
+  }
+
+  // Return the Blob object
+  return new Blob([arrayBuffer], { type: mimeString });
+}
+
+function convertDataToJson(data: { key: string; value: string }[]) {
+  const convertedData: any = {};
+
+  data.forEach((item) => {
+    convertedData[item.key] = {
+      type: "string",
+      description: item.value,
+    };
+  });
+
+  return convertedData;
+}
 
 const NFTform = () => {
   const router = useRouter();
   const { toast } = useToast();
   const [checked, setChecked] = React.useState(false);
-  const [imageFile, setImageFile] = useState<File>();
+  const [imageFileBlob, setImageFileBlob] = useState<Blob>();
+  const [originalFile, setOriginalFile] = useState<File>();
   const [listItems, setListItems] = useState<{ key: string; value: string }[]>(
     []
   );
@@ -38,11 +74,14 @@ const NFTform = () => {
   const [imagePreview, setImagePreview] = useState<any>(null);
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
-    setImageFile(file);
+    setOriginalFile(file);
+
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
+        const blob = dataURItoBlob(reader.result);
+        setImageFileBlob(blob);
       };
       reader.readAsDataURL(file);
     }
@@ -50,38 +89,63 @@ const NFTform = () => {
 
   //submit
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    console.log({ imageFile, listItems });
+    const formdata = new FormData();
+    // Assuming data contains values for asset_name, unit_name, description, total_tokens, and decimals
+    formdata.append("asset_name", data.asset_name);
+    formdata.append("unit_name", data.unit_name);
+    formdata.append("description", data.description);
+    formdata.append("total_tokens", Number(data.total_tokens).toString());
+    formdata.append("decimals", (Number(data.decimals) || 0).toString());
+    formdata.append("originalFile", originalFile as File);
 
-    //  const state = await sendAsset(
-    //    data.reciever,
-    //    Number(data.asset_id),
-    //    Number(data.amt)
-    //  );
-    //  if (state) {
-    //    if (state.status) {
-    //      toast({
-    //        variant: "default",
-    //        title: state.msg,
-    //        action: (
-    //          <ToastAction altText="Visitxn">
-    //            <a target="_blank" href={state.tx_url!}>
-    //              Check
-    //            </a>
-    //          </ToastAction>
-    //        ),
-    //      });
-    //      router.refresh();
-    //    } else {
-    //      toast({
-    //        variant: "destructive",
-    //        title: state.msg,
-    //        description: state.tx_url,
-    //      });
-    //    }
-    //  }
+    // Assuming imageFileBlob is a Blob object and originalFile is a File object
+    if (imageFileBlob) {
+      formdata.append("image", imageFileBlob);
+    }
+
+    const convertedData = convertDataToJson(listItems);
+
+    const state = await createNFT(formdata, convertedData);
+
+    if (state) {
+      if (state.status) {
+        toast({
+          variant: "default",
+          title: state.msg,
+          action: (
+            <ToastAction altText="Visitxn">
+              <a target="_blank" href={state.tx_url!}>
+                Check
+              </a>
+            </ToastAction>
+          ),
+        });
+        reset();
+        router.refresh();
+      } else {
+        toast({
+          variant: "destructive",
+          title: state.msg,
+          description: state.tx_url,
+        });
+      }
+    }
   };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className=" space-y-3 mt-6">
+      <div className="col-span-full">
+        <label className="block text-sm font-medium leading-6 text-gray-900">
+          Description
+        </label>
+        <div className="mt-2">
+          <textarea
+            rows={4}
+            {...register("description")}
+            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-style sm:text-sm sm:leading-6"
+          />
+        </div>
+      </div>
       <div className="col-span-full">
         <label
           htmlFor="cover-photo"
@@ -96,7 +160,11 @@ const NFTform = () => {
                 <div className="absolute top-3 right-3 z-10 flex items-center gap-4">
                   <IoCloseCircle
                     className="text-red-500 size-6 cursor-pointer"
-                    onClick={() => setImagePreview(null)}
+                    onClick={() => {
+                      setOriginalFile(undefined);
+                      setImageFileBlob(undefined);
+                      setImagePreview(null);
+                    }}
                   />
                 </div>
                 <Image
@@ -218,7 +286,7 @@ const NFTform = () => {
       <div className="flex items-center justify-center gap-x-6">
         <button
           type="submit"
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm flex items-center gap-3 "
+          className="rounded-md w-[200px] flex justify-center items-center bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm  gap-3  "
         >
           {isSubmitting ? (
             <Spinner className="text-white" size="medium" />
