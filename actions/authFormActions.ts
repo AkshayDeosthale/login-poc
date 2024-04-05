@@ -227,6 +227,7 @@ export const getAccountBalances = async () => {
         res = await indexer.lookupAccountByID(wallet.public_address).do();
 
         var assets = [];
+
         if (res.account.assets) {
           for (var i = 0; i < res.account.assets.length; i++) {
             var id = res.account.assets[i]["asset-id"];

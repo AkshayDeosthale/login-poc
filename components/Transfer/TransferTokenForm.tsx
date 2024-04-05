@@ -5,7 +5,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { ToastAction } from "../ui/toast";
 import { useToast } from "../ui/use-toast";
 import { Spinner } from "../Spinner";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 
 type Props = { assetList: AssetType };
@@ -21,15 +21,21 @@ const TransferTokenForm = ({ assetList }: Props) => {
   const router = useRouter();
   const { toast } = useToast();
   const [isNFT, setIsNFT] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string>("");
+
   const {
     register,
     handleSubmit,
     watch,
     reset,
     setError,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>();
+
+  const nftUrl = useMemo(() => {
+    return "";
+  }, [getValues("nft_asset_id")]);
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     const foundAsset = assetList?.assets?.find(
       (asset) => asset.id == data.asset_id
@@ -67,6 +73,7 @@ const TransferTokenForm = ({ assetList }: Props) => {
             </ToastAction>
           ),
         });
+        reset();
         router.refresh();
       } else {
         toast({
@@ -91,7 +98,7 @@ const TransferTokenForm = ({ assetList }: Props) => {
                 fill
                 objectPosition="center"
                 objectFit="contain"
-                src={selectedImage}
+                src={nftUrl}
                 alt="Uploaded Asset"
                 className="mx-auto object-cover rounded-lg"
               />

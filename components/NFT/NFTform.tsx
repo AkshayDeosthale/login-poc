@@ -120,6 +120,7 @@ const NFTform = () => {
             </ToastAction>
           ),
         });
+        reset();
         router.refresh();
       } else {
         toast({
