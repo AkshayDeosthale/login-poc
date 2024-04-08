@@ -50,6 +50,11 @@ export function NFTdetailModal({ asset }: Props) {
           >
             Fractional NFT
           </Badge>
+          <Badge
+                      className={`absolute right-3 top-1 bg-purple-500`}
+                    >
+                      x{asset.balance}
+                    </Badge>
         </div>
       </DialogTrigger>
       <DialogContent className="max-w-5xl">
@@ -57,6 +62,9 @@ export function NFTdetailModal({ asset }: Props) {
           <DialogTitle>{asset.asset_details.assetName}</DialogTitle>
           <DialogDescription>
             Balance : {asset.balance} {asset.asset_details.unitName}
+          </DialogDescription>
+          <DialogDescription>
+            Decimals : {asset.asset_details.decimals}
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center space-x-2">

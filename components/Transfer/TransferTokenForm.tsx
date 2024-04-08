@@ -130,7 +130,7 @@ const TransferTokenForm = ({ assetListNew }: Props) => {
           onChange={(e) => setIsNFT(e.target.checked)}
         />
         <label className="ml-3" htmlFor="canTransact">
-          Is the NFT fractional?
+          Is NFT?
         </label>
       </div>
       <div className="col-span-full ">

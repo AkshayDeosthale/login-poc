@@ -37,6 +37,7 @@ const MyAssetList = async ({ assetListNew }: Props) => {
                     >
                       Created
                     </Badge>
+                    
                   </div>
                 ))}
               </>

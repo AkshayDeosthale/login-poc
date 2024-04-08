@@ -171,7 +171,7 @@ export const handleSignUp = async (
   await prismaDisconnect();
   if (user) {
     var res = await transferTestTokens(account.addr);
-    var msg = "User Ceated " + (res == true) ? "& Added 5 Algos" : "";
+    var msg = "User Ceated " + ((res == true) ? "& Added 5 Algos" : "");
     return {
       status: true,
       message: msg,
