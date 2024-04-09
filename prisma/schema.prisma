@@ -24,7 +24,7 @@ model AssetDetails {
   creator String
   assetName String?
   unitName String?
-  total Int 
+  total BigInt 
   decimals Int
   defaultFrozen Boolean
   url String?
